@@ -8,9 +8,12 @@
 #include <math.h>
 #include <fstream>
 #include <iostream>
+#include <vector>
+
 using std::cerr;
 using std::cout;
 using std::endl;
+using std::vector;
 using namespace std;
 
 #ifdef USEGLEW
@@ -37,14 +40,10 @@ public:
 				 double dx, double dy, double dz,
 				 double ux, double uy, double uz);
 
-	void finger(double x, double y, double z,
-					double th,
+	void finger(double th, double r_base,
 					const double boneLen[],
 					const double boneAngle[]);
 
-	void base( double x , double y , double z,
-			     double dx, double dy, double dz,
-			     double ux, double uy, double uz);
 	// ~hand();
 
 	/* data */

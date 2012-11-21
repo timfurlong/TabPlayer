@@ -1,4 +1,5 @@
-CC     = g++
+# CC     = g++
+CC     = clang++
 CFLAGS = -Wall
 LFLAGS =
 MFLAGS =

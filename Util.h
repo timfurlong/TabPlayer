@@ -8,6 +8,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
+#include <vector>
+using std::vector;
 
 #ifdef USEGLEW
 #include <GL/glew.h>
@@ -46,6 +48,14 @@ void setNormal(  double v0x, double v0y, double v0z,
 								double normal[3]);
 
 void drawAxes();
+
+double* GetVertex(double th, double ph, double r,
+						double arr[]);
+
+vector<double> GetVertex(double th, double ph, double r,
+						vector<double> arr[]);
+
+vector<double> GetVertex(double th, double ph, double r);
 
 bool contains(int num, int* const array);
 

@@ -44,14 +44,45 @@ void Vertex(double th,double ph)
 	glVertex3f(x,y,z);
 }
 
-/*
-*  Draw vertex in polar coordinates with normal and len
-*/
-void Vertex(double th,double ph, double len)
+double* GetVertex(double th, double ph, double r,
+						double arr[])
 {
-	double x = len*Sin(th)*Cos(ph);
-	double y = len*Cos(th)*Cos(ph);
-	double z = len*        Sin(ph);
+	arr[0] = r * Sin(th)*Cos(ph);
+	arr[1] = r * Cos(th)*Cos(ph);
+	arr[2] = r *         Sin(ph);
+
+	return arr;
+}
+
+vector<double> GetVertex(double th, double ph, double r,
+						vector<double> arr)
+{
+	arr.push_back( r * Sin(th)*Cos(ph) );
+	arr.push_back( r * Cos(th)*Cos(ph) );
+	arr.push_back( r *         Sin(ph) );
+
+	return arr;
+}
+
+vector<double> GetVertex(double th, double ph, double r)
+{
+	vector<double> v;
+
+	v.push_back( r * Sin(th)*Cos(ph) );
+	v.push_back( r * Cos(th)*Cos(ph) );
+	v.push_back( r *         Sin(ph) );
+
+	return v;
+}
+
+/*
+*  Draw vertex in polar coordinates with normal, r away from the radius.
+*/
+void Vertex(double th,double ph, double r)
+{
+	double x = r*Sin(th)*Cos(ph);
+	double y = r*Cos(th)*Cos(ph);
+	double z = r*        Sin(ph);
 	//  For a sphere at the origin, the position
 	//  and normal vectors are the same
 	glNormal3d(x,y,z);

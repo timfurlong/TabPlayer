@@ -1,27 +1,31 @@
 #include "hand.h"
 
-void hand::finger(double x, double y, double z,
-						double ph,
-					const double boneLen[], const double boneAngle[])
+void hand::finger(double th, double r_base,
+						const double boneLen[],
+						const double boneAngle[])
 {
-	glPushMatrix();
+	// int numBones = sizeof(boneLen) / sizeof(double);
+	vector<double> pt;
+	vector<double> pts;
+	double ph = 0;
+	double r = r_base;
+
 	glColor3f(1,0,0);
-	int numBones = sizeof boneLen/sizeof(double);
-	glRotated(ph, 0,0,1);
 
-
-
-	glBegin(GL_LINES);
-		double pt[3] = {x,y,z};
-		for (int i=0; i<numBones; i++){
-			glVertex3dv( pt );
-			pt[0] += boneLen[i]*Sin(boneAngle[i])*Cos(ph);
-			pt[1] += boneLen[i]*Cos(boneAngle[i])*Cos(ph);
-			pt[2] += boneLen[i]*                  Sin(ph);
-			glVertex3dv( pt );
+	glPushMatrix();
+		pt = GetVertex(th, ph, r);
+		for (int i=0; i<3; i++)
+		{
+			glTranslated( pt[0], pt[1], pt[2] );
+			ph += boneAngle[i];
+			pt = GetVertex(th, ph, boneLen[i]);
+			glBegin(GL_LINES);
+				glVertex3d( 0,0,0 );
+				glVertex3d( pt[0], pt[1], pt[2] );
+			glEnd();
 		}
-	glEnd();
 	glPopMatrix();
+
 	ErrCheck("finger");
 }
 
@@ -38,12 +42,12 @@ void hand::drawHand(  double x , double y , double z,
 		const double scaleFactor     = 1;
 
 		// Base parameters
-		const double fingerPh[5] = {10, 75, 90, 105, 120};
-		const double baseLen[5]  = {.7,  1,  1,   1,   0.7};
+		const double fingerTh[5] = {10, 75, 90, 105, 120};
+		const double baseLen[5]  = {.5,  1,  1,   1,   0.7};
 
 		// Finger parameters
-		const double thumbLen[2] = {0.3, 0.2};
-		const double thumbAngle[2] = {0, 20};
+		const double thumbLen[3] = {0.3, 0.2, 0};
+		const double thumbAngle[3] = {20, 20, 0};
 
 		const double indexLen[3] = { 0.3, 0.3, 0.2};
 		const double indexAngle[3] = {0, 0, 0};
@@ -58,8 +62,7 @@ void hand::drawHand(  double x , double y , double z,
 		const double pinkyAngle[3] = {0, 0, 0};
 
 		double mat[16];
-		double pt[3];
-		double fingerBase[15];
+		double fingerBase[10];
 
 		getMatrix(  dx,dy,dz,
 						ux,uy,uz,  mat);
@@ -71,73 +74,27 @@ void hand::drawHand(  double x , double y , double z,
 		glMultMatrixd(mat);
 
 		// Begin drawing  =================================
+
+		// Hand Base
 		glColor3f( 0, 0, 1 );
 		glBegin(GL_LINES);
 			for (int i=0; i<5; i++){
-				pt[0] = -Cos(fingerPh[i]) * baseLen[i];
-				pt[1] = Sin(fingerPh[i]) * baseLen[i];
-				pt[2] = 0;
 				glVertex3d(0,0,0);
-				glVertex3dv(pt);
-				fingerBase[i*3]   = pt[0];
-				fingerBase[i*3+1] = pt[1];
-				fingerBase[i*3+2] = pt[2];
+				Vertex( fingerTh[i], 0, baseLen[i] );
+				fingerBase[i*2]   = fingerTh[i];
+				fingerBase[i*2+1] = baseLen[i];
 			}
 		glEnd();
 
-		this->finger(fingerBase[0],fingerBase[1],fingerBase[2],
-							fingerPh[0], thumbLen,thumbAngle);
-		this->finger(fingerBase[3],fingerBase[4],fingerBase[5],
-							fingerPh[1], indexLen,indexAngle);
-		this->finger(fingerBase[6],fingerBase[7],fingerBase[8],
-							fingerPh[2], middleLen,middleAngle);
-		this->finger(fingerBase[9],fingerBase[10],fingerBase[11],
-							fingerPh[3], ringLen,ringAngle);
-		this->finger(fingerBase[12],fingerBase[13],fingerBase[14],
-							fingerPh[4], pinkyLen,pinkyAngle);
+		// Fingers
+		finger(fingerBase[0], fingerBase[1], thumbLen, thumbAngle);
+		finger(fingerBase[2], fingerBase[3], indexLen, indexAngle);
+		finger(fingerBase[4], fingerBase[5], middleLen, middleAngle);
+		finger(fingerBase[6], fingerBase[7], ringLen, ringAngle);
+		finger(fingerBase[8], fingerBase[9], pinkyLen, pinkyAngle);
+
 		//  Undo transformations
 		glPopMatrix();
 		ErrCheck("hand");
 }
 
-
-
-
-
-/*
- *  Draw the hand base
- *     at (x,y,z)
- *     neck facing (dx,dy,dz)
- *     up towards (ux,uy,uz)
- */
-void hand::base(  double x , double y , double z,
-					   double dx, double dy, double dz,
-					   double ux, double uy, double uz)
-{
-		const double scaleFactor     = 0.5;
-		const double fingerAngle [5] = {10, 75, 90, 105, 120};
-		const double baseLen[5]      = {0.7, 1, 1, 1, 1};
-
-		double mat[16];
-		getMatrix(  dx,dy,dz,
-						ux,uy,uz,  mat);
-		//  Save transformation
-		glPushMatrix();
-		//  Offset
-		glTranslated( x ,y ,z );
-		glScaled( scaleFactor, scaleFactor, scaleFactor);
-		glMultMatrixd(mat);
-
-		// Begin drawing  =================================
-
-		glBegin(GL_LINES);
-			for (int i=0; i<5; i++){
-				glVertex3d(0,0,0);
-				glVertex3d( -baseLen[i]*Cos(fingerAngle[i]),
-								 baseLen[i]*Sin(fingerAngle[i]), 0 );
-			}
-		glEnd();
-		//  Undo transformations
-		glPopMatrix();
-		ErrCheck("hand base");
-}
