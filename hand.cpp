@@ -82,7 +82,7 @@ void hand::finger(double th, double r_base,
 {
 	// int numBones = sizeof(boneLen) / sizeof(double);
 	// printf("numBones = %i\n", numBones);
-
+	// CHANGE
 	vector<double> pt;
 	vector<double> pts;
 	double ph = 0;
