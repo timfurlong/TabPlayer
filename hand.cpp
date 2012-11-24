@@ -81,6 +81,8 @@ void hand::finger(double th, double r_base,
 						const double boneAngle[])
 {
 	// int numBones = sizeof(boneLen) / sizeof(double);
+	// printf("numBones = %i\n", numBones);
+
 	vector<double> pt;
 	vector<double> pts;
 	double ph = 0;
