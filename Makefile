@@ -1,5 +1,6 @@
 # CC     = g++
 CC     = clang++
+# CC     = clang++ -std=c++11 -stdlib=libc++
 CFLAGS = -Wall
 LFLAGS =
 MFLAGS =

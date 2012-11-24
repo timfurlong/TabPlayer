@@ -18,7 +18,7 @@ void guitar::neck(  double x , double y , double z,
 		//  Save transformation
 		glPushMatrix();
 		//  Offset
-		glTranslated(x-(neck_length/2),y,z);
+		glTranslated(x-(neck_length/2),y, z);
 		glMultMatrixd(mat);
 
 		// Begin drawing  =================================
@@ -124,7 +124,6 @@ void guitar::frets()
 	ambientvec[0] = 0.19225;
 	ambientvec[1] = 0.19225;
 	ambientvec[2] = 0.19225;
-	ambientvec[3] = 1.0;
 	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambientvec);
 	diffuseVec[0] = 0.50754;
 	diffuseVec[1] = 0.50754;
@@ -134,14 +133,14 @@ void guitar::frets()
 	specularvec[1] = 0.508273;
 	specularvec[2] = 0.508273;
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specularvec);
-	shinyvec[1] = 0.4*128;
+	shinyvec[0] = 0.4*128;
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shinyvec);
 
 	glColor3f(1,1,1);
-	int numFrets = sizeof fret_position/sizeof(fret_position[0]);
+
 	double X; // x position of fret
 	double last_X;
-	for (int fret=0; fret<numFrets; fret++){
+	for (int fret=0; fret<num_frets; fret++){
 		X = neck_length*fret_position[fret];
 		// Draw the fret
 		// Top
@@ -174,7 +173,7 @@ void guitar::frets()
 		glEnd();
 
 		// Draw inlay (if there is one)
-		for (int i=0; i<numFrets ;i++){
+		for (int i=0; i<num_frets ;i++){
 			if ( fret+1 == 12){
 				guitar::inlay( (X+last_X)/2 , +neck_r/2, fretboard_thickness+.001);
 				guitar::inlay( (X+last_X)/2 , -neck_r/2, fretboard_thickness+.001);

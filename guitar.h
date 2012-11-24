@@ -39,21 +39,15 @@ extern int tMode;
 extern int ntex;
 
 // Guitar measurement values
-const double neck_length         = 5;
-const double neck_r              = .3;
-const double fretboard_thickness = 0.06;
-const double fret_r              = 0.02;
-const double fret_position[]     = {
-	0.978378, 0.955683, 0.931640, 0.906167, 0.879180,
-	0.850588, 0.820295, 0.788202, 0.754199, 0.718177,
-	0.680010, 0.639575, 0.596735, 0.551346, 0.503261,
-	0.452316, 0.398341, 0.341155, 0.280570, 0.216383,
-	0.148380, 0.076331
-	};
-const int inlay_frets[]   = { 3,  5,  7,  9, 12,
-										15, 17, 19, 21 };
-const double inlay_r      = 0.05;
-const double tiny_inlay_r = 0.02;
+extern const double neck_length;
+extern const double neck_r;
+extern const double fretboard_thickness;
+extern const double fret_r;
+extern const double fret_position[];
+extern const int num_frets;
+extern const int inlay_frets[];
+extern const double inlay_r;
+extern const double tiny_inlay_r;
 
 class guitar
 {

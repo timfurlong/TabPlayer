@@ -45,7 +45,7 @@ double dim = 3.0;   //  Size of world
 
 // Light values
 int one           =   1;  // Unit value
-int dist          =   5;  		 // Light distance
+int dist          =   5;  // Light distance
 int inc           =  10;  // Ball increment
 int smooth        =   0;  // Smooth/Flat shading
 int local         =   0;  // Local Viewer Model
@@ -63,6 +63,24 @@ float shinyvec[1];    // Shininess (value)
 float ambientvec[3];
 float diffuseVec[3];
 float specularvec[3];
+
+// Guitar measurement values
+const double neck_length         = 5;
+const double neck_r              = .3;
+const double fretboard_thickness = 0.06;
+const double fret_r              = 0.02;
+const double fret_position[]     = {
+	0.978378, 0.955683, 0.931640, 0.906167, 0.879180,
+	0.850588, 0.820295, 0.788202, 0.754199, 0.718177,
+	0.680010, 0.639575, 0.596735, 0.551346, 0.503261,
+	0.452316, 0.398341, 0.341155, 0.280570, 0.216383,
+	0.148380, 0.076331
+	};
+const int num_frets = 22;
+const int inlay_frets[]   = { 3,  5,  7,  9, 12,
+										15, 17, 19, 21 };
+const double inlay_r      = 0.05;
+const double tiny_inlay_r = 0.02;
 
 // Texture values
 unsigned int texture[5];  //  Texture names
@@ -95,13 +113,6 @@ void stageFloor(double y)
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,tMode?GL_REPLACE:GL_MODULATE);
 	glColor3f(floor_l ,floor_l ,floor_l );
 	glBindTexture(GL_TEXTURE_2D,texture[4]);
-	// glBegin(GL_QUADS);
-	// 	glNormal3f(0,1,0);
-	// 	glTexCoord2f(0,0); glVertex3d(-len,y,-len);
-	// 	glTexCoord2f(0,1); glVertex3d(-len,y,+len);
-	// 	glTexCoord2f(1,1); glVertex3d(+len,y,+len);
-	// 	glTexCoord2f(1,0); glVertex3d(+len,y,-len);
-	// glEnd();
 	glBegin(GL_QUADS);
 		glNormal3f(0,1,0);
 		glColor3f(1,1,1);
@@ -255,10 +266,14 @@ void display()
 	//    ||
 	//    ||
 
-	// guitar( 0,0,0, 1,0,0, 0,1,0);
+	guitar( 0,0,0, 1,0,0, 0,1,0);
 	// stageFloor(-2);
-	hand(0,0,0, 1,0,0, 0,1,0 );
-	// shape::cube(0,0,0 , 0.5,0.5,0.5 , 0);
+	hand( 1,
+			0,
+			0,
+			0,
+			0,
+			0);
 	//  Draw axes
 	glDisable(GL_LIGHTING);
 	drawAxes();

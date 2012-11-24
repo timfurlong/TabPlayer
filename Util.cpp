@@ -1,8 +1,8 @@
 #include "Util.h"
 
 void getMatrix(double dx, double dy, double dz,
-										double ux, double uy, double uz,
-										double* mat)
+					double ux, double uy, double uz,
+					double* mat)
 {
 	//  Unit vector in direction
    double D0 = sqrt(dx*dx+dy*dy+dz*dz);
@@ -44,26 +44,6 @@ void Vertex(double th,double ph)
 	glVertex3f(x,y,z);
 }
 
-double* GetVertex(double th, double ph, double r,
-						double arr[])
-{
-	arr[0] = r * Sin(th)*Cos(ph);
-	arr[1] = r * Cos(th)*Cos(ph);
-	arr[2] = r *         Sin(ph);
-
-	return arr;
-}
-
-vector<double> GetVertex(double th, double ph, double r,
-						vector<double> arr)
-{
-	arr.push_back( r * Sin(th)*Cos(ph) );
-	arr.push_back( r * Cos(th)*Cos(ph) );
-	arr.push_back( r *         Sin(ph) );
-
-	return arr;
-}
-
 vector<double> GetVertex(double th, double ph, double r)
 {
 	vector<double> v;
@@ -75,14 +55,37 @@ vector<double> GetVertex(double th, double ph, double r)
 	return v;
 }
 
+vector<double> GetVertex(double th, double ph, double r,
+								 double dx, double dy, double dz)
+{
+	vector<double> v;
+
+	v.push_back( r * Sin(th)*Cos(ph) + dx );
+	v.push_back( r * Cos(th)*Cos(ph) + dy );
+	v.push_back( r *         Sin(ph) + dz );
+
+	return v;
+}
 /*
 *  Draw vertex in polar coordinates with normal, r away from the radius.
 */
 void Vertex(double th,double ph, double r)
 {
-	double x = r*Sin(th)*Cos(ph);
-	double y = r*Cos(th)*Cos(ph);
-	double z = r*        Sin(ph);
+	double x = r * Sin(th)*Cos(ph);
+	double y = r * Cos(th)*Cos(ph);
+	double z = r *         Sin(ph);
+	//  For a sphere at the origin, the position
+	//  and normal vectors are the same
+	glNormal3d(x,y,z);
+	glVertex3f(x,y,z);
+}
+
+void Vertex(double th,double ph, double r,
+				double dx, double dy, double dz)
+{
+	double x = r*Sin(th)*Cos(ph) + dx;
+	double y = r*Cos(th)*Cos(ph) + dy;
+	double z = r*        Sin(ph) + dz;
 	//  For a sphere at the origin, the position
 	//  and normal vectors are the same
 	glNormal3d(x,y,z);
@@ -171,12 +174,12 @@ void drawAxes()
 	if (axes)
 	{
 		glBegin(GL_LINES);
-		glVertex3f(0.0,0.0,0.0);
-		glVertex3f(len,0.0,0.0);
-		glVertex3f(0.0,0.0,0.0);
-		glVertex3f(0.0,len,0.0);
-		glVertex3f(0.0,0.0,0.0);
-		glVertex3f(0.0,0.0,len);
+			glVertex3f(0.0,0.0,0.0);
+			glVertex3f(len,0.0,0.0);
+			glVertex3f(0.0,0.0,0.0);
+			glVertex3f(0.0,len,0.0);
+			glVertex3f(0.0,0.0,0.0);
+			glVertex3f(0.0,0.0,len);
 		glEnd();
 		//  Label axes
 		glRasterPos3d(len,0.0,0.0);

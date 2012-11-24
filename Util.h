@@ -35,27 +35,24 @@ void getMatrix(double dx, double dy, double dz,
 								double* mat);
 
 void Vertex(double th,double ph);
-
 void Vertex(double th,double ph, double r);
+void Vertex(double th,double ph, double r,
+				double dx, double dy, double dz);
 
 void setEye();
 
 void ReduceToUnit(double vector[3]); // Reduces A Normal Vector (3 Coordinates)
 
-void setNormal(  double v0x, double v0y, double v0z,
-								double v1x, double v1y, double v1z,
-								double v2x, double v2y, double v2z,
-								double normal[3]);
+void setNormal( double v0x, double v0y, double v0z,
+					 double v1x, double v1y, double v1z,
+					 double v2x, double v2y, double v2z,
+					 double normal[3]);
 
 void drawAxes();
 
-double* GetVertex(double th, double ph, double r,
-						double arr[]);
-
-vector<double> GetVertex(double th, double ph, double r,
-						vector<double> arr[]);
-
 vector<double> GetVertex(double th, double ph, double r);
+vector<double> GetVertex(double th, double ph, double r,
+								 double dx, double dy, double dz);
 
 bool contains(int num, int* const array);
 
