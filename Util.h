@@ -30,6 +30,13 @@ extern int th;
 extern int ph;
 extern double dim;
 
+template <typename T, size_t N>
+inline
+size_t SizeOfArray( const T(&)[ N ] )
+{
+	return N;
+}
+
 void getMatrix(double dx, double dy, double dz,
 								double ux, double uy, double uz,
 								double* mat);

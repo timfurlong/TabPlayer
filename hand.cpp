@@ -14,7 +14,7 @@ void hand::drawHand( int E, int A, int D, int G, int B, int e)
 	const double baseLen[5]  = {.25,  0.5,  0.5,   0.5,   0.35};
 
 	// Finger parameters
-	const double thumbLen[3] = {0.3, 0.2, 0};
+	const double thumbLen[2] = {0.3, 0.2};
 	const double indexLen[3] = { 0.3, 0.3, 0.2};
 	const double middleLen[3] = { 0.3, 0.3, 0.2};
 	const double ringLen[3] = { 0.3, 0.3, 0.2};
