@@ -1,4 +1,4 @@
 TabPlayer
 =========
 
-Plays guitar tabs visually usig OpenGL
+Plays guitar tabs visually using OpenGL
