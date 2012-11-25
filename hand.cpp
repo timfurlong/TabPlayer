@@ -9,27 +9,16 @@
  */
 void hand::drawHand( int E, int A, int D, int G, int B, int e)
 {
-	const double scaleFactor     = 1;
-
 	// Base parameters
 	const double fingerTh[5] = {10, 75, 90, 105, 120};
 	const double baseLen[5]  = {.25,  0.5,  0.5,   0.5,   0.35};
 
 	// Finger parameters
 	const double thumbLen[3] = {0.3, 0.2, 0};
-	const double thumbAngle[3] = {20, 20, 0};
-
 	const double indexLen[3] = { 0.3, 0.3, 0.2};
-	const double indexAngle[3] = {0, 0, 0};
-
 	const double middleLen[3] = { 0.3, 0.3, 0.2};
-	const double middleAngle[3] = {0, 0, 0};
-
 	const double ringLen[3] = { 0.3, 0.3, 0.2};
-	const double ringAngle[3] = {0, 0, 0};
-
 	const double pinkyLen[3] = {0.2, 0.2, 0.1};
-	const double pinkyAngle[3] = {0, 0, 0};
 
 	double mat[16];
 	double fingerBase[15];
@@ -47,7 +36,6 @@ void hand::drawHand( int E, int A, int D, int G, int B, int e)
 	glTranslated( x, 0, 0 );
 	glRotated(-90, 0,0,1);
 	glRotated(theta, 0,1,0);
-	glScaled( scaleFactor, scaleFactor, scaleFactor);
 	glMultMatrixd(mat);
 	draw_axes(0,1,0);
 	// Begin drawing  =================================
@@ -65,11 +53,11 @@ void hand::drawHand( int E, int A, int D, int G, int B, int e)
 
 	// Fingers
 	glColor3f( 1,0,0 );
-	finger(fingerBase[0], fingerBase[1], thumbLen, thumbAngle);
-	finger(fingerBase[2], fingerBase[3], indexLen, indexAngle);
-	finger(fingerBase[4], fingerBase[5], middleLen, middleAngle);
-	finger(fingerBase[6], fingerBase[7], ringLen, ringAngle);
-	finger(fingerBase[8], fingerBase[9], pinkyLen, pinkyAngle);
+	finger(fingerBase[0], fingerBase[1], thumbLen);
+	finger(fingerBase[2], fingerBase[3], indexLen);
+	finger(fingerBase[4], fingerBase[5], middleLen);
+	finger(fingerBase[6], fingerBase[7], ringLen);
+	finger(fingerBase[8], fingerBase[9], pinkyLen);
 
 	//  Undo transformations
 	glPopMatrix();
@@ -77,35 +65,34 @@ void hand::drawHand( int E, int A, int D, int G, int B, int e)
 }
 
 void hand::finger(double th, double r_base,
-						const double boneLen[],
-						const double boneAngle[])
+						const double boneLen[])
 {
-	// int numBones = sizeof(boneLen) / sizeof(double);
-	// printf("numBones = %i\n", numBones);
-	// CHANGE
+	// int numBones = sizeof(*boneLen) / sizeof(double);
+
 	vector<double> pt;
 	vector<double> pts;
 	double ph = 0;
 	double r = r_base;
 
 	glPushMatrix();
-		pt = GetVertex(th, ph, r,
-							0,0,-neck_r);
-		for (int i=0; i<3; i++)
-		{
-			glTranslated( pt[0], pt[1], pt[2] );
-			ph += boneAngle[i];
-			pt = GetVertex(th, ph, boneLen[i]);
-			glBegin(GL_LINES);
-				glVertex3d( 0,0,0 );
-				glVertex3d( pt[0], pt[1], pt[2] );
-			glEnd();
-		}
-	glPopMatrix();
 
+	glPopMatrix();
 	ErrCheck("finger");
 }
-
+// glPushMatrix();
+// 	pt = GetVertex(th, ph, r,
+// 						0,0,-neck_r);
+// 	for (int i=0; i<3; i++)
+// 	{
+// 		glTranslated( pt[0], pt[1], pt[2] );
+// 		ph += boneAngle[i];
+// 		pt = GetVertex(th, ph, boneLen[i]);
+// 		glBegin(GL_LINES);
+// 			glVertex3d( 0,0,0 );
+// 			glVertex3d( pt[0], pt[1], pt[2] );
+// 		glEnd();
+// 	}
+// glPopMatrix();
 
 double hand::get_fret_pos(int fret_num)
 {

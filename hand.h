@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <tr1/array>
 
 using std::cerr;
 using std::cout;
@@ -46,8 +47,7 @@ public:
 
 private:
 	void finger(double th, double r_base,
-					const double boneLen[],
-					const double boneAngle[]);
+					const double boneLen[]);
 
 	double get_fret_pos(int fret_num);
 	double get_finger_pos(int fret_num);
