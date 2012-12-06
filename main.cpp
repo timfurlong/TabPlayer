@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 #include <cstdlib> // for exit function
 #include <math.h>
@@ -66,6 +67,7 @@ float ambientvec[3];
 float diffuseVec[3];
 float specularvec[3];
 
+const char* default_song = "Data/testdata.xml";
 // Guitar measurement values
 const double neck_length         = 5;
 const double neck_r              = .3;
@@ -102,6 +104,17 @@ int rep=1;        //  Repitition
 #define Cos(th) cos(3.1415926/180*(th))
 #define Sin(th) sin(3.1415926/180*(th))
 
+
+struct note
+{
+	int note_num;
+	int duration;
+	int fret;
+	int string;
+	int fingering;
+	char* step;
+};
+vector< note > notes;
 
 void stageFloor(double y)
 {
@@ -481,12 +494,57 @@ bool Init(){
 
 	// Get database information
 	Database *db;
-	db = new Database("Data/noteData.db");
-	vector<vector<string> > result = db->query("SELECT * FROM notes WHERE song='Data/testdata.xml';");
+	db = new Database((char *)"Data/noteData.db");
+	vector<vector<string> > result = db->query( (char *)"SELECT * FROM notes\
+																WHERE song='Data/testdata.xml';" );
+	vector< map<string, int> > notes;
 	for(vector<vector<string> >::iterator it = result.begin(); it < result.end(); ++it)
 	{
 	    vector<string> row = *it;
 	    cout << "Values: (row[0])=" << row[0] << ", row[1])=" << row[1] << ")" << endl;
+	}
+	db->close();
+
+	return true;
+}
+
+bool Init(int argc,char* argv[]){
+	char *songname;
+	//  Load textures
+	texture[0] = LoadTexBMP("Data/Mahogany.bmp");
+	texture[1] = LoadTexBMP("Data/rosewood2.bmp");
+	texture[2] = LoadTexBMP("Data/pearlyInlay.bmp");
+	texture[3] = LoadTexBMP("Data/carpet.bmp");
+	texture[4] = LoadTexBMP("Data/woodFlooring.bmp");
+	texture[5] = LoadTexBMP("Data/wound_strings.bmp");
+
+	// Get song
+	if (argc<2)
+		songname = (char*)default_song;
+	else
+		songname = argv[1];
+	// Get database information
+	Database *db;
+	db = new Database((char *)"Data/noteData.db");
+	char q[50];
+	sprintf( q, (char *)"SELECT * FROM notes WHERE song='%s';", songname);
+	vector<vector<string> > result = db->query( q );
+	note n;
+	for(vector<vector<string> >::iterator it = result.begin(); it < result.end(); ++it)
+	{
+	   vector<string> row = *it;
+		n.note_num  = atoi( row[1].c_str() );
+		n.duration  = atoi( row[2].c_str() );
+		n.fret      = atoi( row[3].c_str() );
+		n.string    = atoi( row[4].c_str() );
+		n.fingering = atoi( row[5].c_str() );
+		n.step      = (char*)row[6].c_str();
+	   notes.insert( notes.end(), n );
+	    // cout << "Values: (row[0])=" << row[0] << ", row[1])=" << row[1] << ")" << endl;
+	}
+	for(vector<note>::iterator it = notes.begin(); it< notes.end(); it++){
+		note n = *it;
+		printf("%d, %s, %d\n", n.note_num, n.step, n.fret);
 	}
 	db->close();
 
@@ -508,7 +566,8 @@ int main(int argc,char* argv[])
 	glutSpecialFunc(special);
 	glutKeyboardFunc(key);
 	glutIdleFunc(idle);
-	if (!Init())									// Initialize Our Newly Created GL Window
+
+	if (!Init( argc, argv) )						// Initialize Our Newly Created GL Window
 	{
 		exit(0);
 	}
