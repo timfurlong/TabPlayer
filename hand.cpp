@@ -7,33 +7,30 @@
  *     fingers facing (dx,dy,dz)
  *     up towards (ux,uy,uz)
  */
-void hand::drawHand( int E, int A, int D, int G, int B, int e)
+void hand::drawHand( note n )
 {
 	// Base parameters
 	const double fingerTh[5] = {10, 75, 90, 105, 120};
 	const double baseLen[5]  = {.25,  0.5,  0.5,   0.5,   0.35};
 
-	// Finger parameters
-	const double thumbLen[2] = {0.3, 0.2};
-	const double indexLen[3] = { 0.3, 0.3, 0.2};
-	const double middleLen[3] = { 0.3, 0.3, 0.2};
-	const double ringLen[3] = { 0.3, 0.3, 0.2};
-	const double pinkyLen[3] = {0.2, 0.2, 0.1};
-
-	int strings[6] = { E, A, D, G, B, e };
 	double mat[16];
 	double fingerBase[15];
-	vector<int> finger_map = get_finger_map( strings );
 
-	int hand_fret = get_wrist_fretnum(E, A, D, G, B, e);
-	double theta  = get_wrist_theta(E, A, D, G, B, e);
+	// int hand_fret = get_wrist_fretnum(E, A, D, G, B, e);
+	double theta  = get_wrist_theta(n);
 
 	getMatrix(  1,0,0,
-				0,1,0,  mat);
+					0,1,0,  mat);
 	//  Save transformation
 	glPushMatrix();
 
-	double x = get_finger_x( hand_fret );
+	vector<double> tip = get_finger_tip( n );
+	glBegin(GL_LINES);
+		glVertex3d(tip[0],tip[1],tip[2]);
+
+	glEnd();
+
+	double x = get_finger_x( n.fret );
 	//  Offset
 	glTranslated( x, 0, 0 );
 	glRotated(-90, 0,0,1);
@@ -47,7 +44,8 @@ void hand::drawHand( int E, int A, int D, int G, int B, int e)
 	glBegin(GL_LINES);
 		for (int i=0; i<5; i++){
 			glVertex3d(0,0,-(neck_r+buffHelp));
-			Vertex( fingerTh[i], 0, baseLen[i], 0,0,-(neck_r+buffHelp) );
+			Vertex( fingerTh[i], 0, baseLen[i],
+						0,0,-(neck_r+buffHelp) );
 			fingerBase[i*2]   = fingerTh[i];
 			fingerBase[i*2+1] = baseLen[i];
 		}
@@ -55,13 +53,12 @@ void hand::drawHand( int E, int A, int D, int G, int B, int e)
 
 	// Fingers
 	glColor3f( 1,0,0 );
-
 	// for (int i=0; i<6; i++){
 	// 	finger(fingerBase[0], fingerBase[1], thumbLen, strings);
 	// }
-	for (int i=0; i<6; i++){
-		finger(fingerBase[2], fingerBase[3], indexLen, strings, finger_map);
-	}
+	// for (int i=0; i<6; i++){
+	// 	finger(fingerBase[2], fingerBase[3], indexLen, n);
+	// }
 	// for (int i=0; i<6; i++){
 	// 	finger(fingerBase[4], fingerBase[5], middleLen, strings);
 	// }
@@ -74,34 +71,54 @@ void hand::drawHand( int E, int A, int D, int G, int B, int e)
 
 	//  Undo transformations
 	glPopMatrix();
+	// for (int i=0; i<6; i++){
+	// 	finger(fingerBase[0], fingerBase[1], thumbLen, strings);
+	// }
 	ErrCheck("hand");
 }
 
-void hand::finger(	double th, double r_base,
-					const double boneLen[], int strings[], vector<int> map)
+vector<double> hand::get_finger_tip( note n )
 {
-	// int numBones = sizeof(*boneLen) / sizeof(double);
-
-	vector<double> pt;
-	vector<double> pts;
-	double ph = 0;
-	double r = r_base;
-	bool loopDone = false;
+	const double fret_dist = 0.3;
 	double x, y;
+	vector<double> xyz;
+	// lowest n.string is 1, not 0. This is just MusicXML standard
+	y = str_y[ n.string - 1];
 
-	for (int i=0; i<6; i++){
-		if (strings[i] == 1)
-		{
-			glPushMatrix();
-				glBegin( GL_LINES );
-					x = get_finger_x(1);
-					// y = get_finger_y()
-				glEnd();
-			glPopMatrix();
-			ErrCheck("finger");
-		}
-	}
+	double fret_diff = fret_position[num_frets-n.fret]-fret_position[num_frets-n.fret+1];
+	x = fret_position[ num_frets - n.fret ]- (fret_diff * fret_dist);
+	x *= neck_length;
+	x -= neck_length/2;
+
+	xyz.push_back(x);
+	xyz.push_back(y);
+	xyz.push_back( fretboard_thickness );
+	return xyz;
 }
+// void hand::finger(double th, double r_base,
+// 				const double boneLen[], note n)
+// {
+// 	// int numBones = sizeof(*boneLen) / sizeof(double);
+
+// 	vector<double> pt;
+// 	vector<double> pts;
+// 	double ph = 0;
+// 	double r = r_base;
+// 	double x, y;
+
+// 	for (int i=0; i<6; i++){
+// 		if (strings[i] == 1)
+// 		{
+// 			glPushMatrix();
+// 				glBegin( GL_LINES );
+// 					x = get_finger_x(1);
+// 					// y = get_finger_y()
+// 				glEnd();
+// 			glPopMatrix();
+// 			ErrCheck("finger");
+// 		}
+// 	}
+// }
 // glPushMatrix();
 // 	pt = GetVertex(th, ph, r,
 // 						0,0,-neck_r);
@@ -116,57 +133,6 @@ void hand::finger(	double th, double r_base,
 // 		glEnd();
 // 	}
 // glPopMatrix();
-
-/*
-	Returns a vector indexed by string number, valued by which finger holds down which
-	string, reguardless of which fret. That information will be paired later.
-	-1 is a special value indicating that no finger is holding that string
-
-	TODO: does not work for bar chords. Using abjad for manual finger mapping instead
-*/
-vector<int> hand::get_finger_map(int strings[])
-{
-	vector<int> finger_map;
-	int numDiffFrets = 0; // Num of different frets that are held down by a finger (nonzero)
-	int fingNum;
-	vector<int> usedFrets;
-	vector<int>::iterator it;
-
-	for (int i=0; i<6; i++){
-		if (strings[i] == 0)
-			continue;
-		if ( contains( usedFrets, strings[i] ) == false )
-		{  // fret has not been used yet
-			usedFrets.insert( usedFrets.end(), strings[i] );
-		}
-	}
-	sort(usedFrets.begin(), usedFrets.end());
-	fingNum = 1; // lowest frets used go to the index finger
-	finger_map.assign(6, -1); // initialize all strings to not use a finger
-	for (it=usedFrets.begin(); it!=usedFrets.end(); it++){
-		for (int i=0; i<6; i++){
-			if (*it == strings[i]){
-				// This string is being held by this fret
-				if (!contains(finger_map, fingNum))
-					finger_map[i] = fingNum;
-				else if (finger_map[i-1] == fingNum)
-					finger_map[i] = fingNum;
-				else{
-					fingNum++;
-					finger_map[i] = fingNum;
-				}
-			}
-		}
-		fingNum++;
-	}
-
-	// for (it=finger_map.begin(); it!=finger_map.end(); it++){
-	// 	printf("%i\n", *it);
-	// }
-	// printf("\n");
-
-	return finger_map;
-}
 
 double hand::get_fret_x(int fret_num)
 {
@@ -214,23 +180,12 @@ int hand::get_wrist_fretnum( int E, int A, int D, int G, int B, int e)
 	return floor( sum/num_nonzeros );
 }
 
-double hand::get_wrist_theta( int E, int A, int D, int G, int B, int e)
+double hand::get_wrist_theta( note n )
 {
 	const double max_theta = -40;
-	int strings[6] = {e, B, G, D, A, E};
-	double highest_str = 0;
-
-	for (int str_num=1; str_num <= 6; str_num++)
-	{
-		if (strings[str_num-1] > 0)
-		{
-			if (str_num > highest_str)
-				highest_str = str_num;
-		}
-	}
-	if (highest_str <= 3)
+	if (n.string < 4)
 		return 0;
-	return ( (highest_str-3)/3 ) * max_theta;
+	return (max_theta - (max_theta/3)*(6-n.string));
 }
 
 

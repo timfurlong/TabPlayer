@@ -1,5 +1,6 @@
 #include "CSCIx229.h"
 #include "Util.h"
+#include "note.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,8 +10,8 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <set>
-// #include <tr1/array>
 
 using std::cerr;
 using std::cout;
@@ -35,22 +36,25 @@ extern const double neck_length;
 extern const double neck_r;
 extern const double fretboard_thickness;
 extern int axes;
+extern queue<note> notes;
+extern double str_y[6];
+
 
 const double buffHelp = 0.000000001;
 
 class hand
 {
 public:
-	hand( int E, int A, int D, int G, int B, int e )
+	hand( note n )
 	{
-		this->drawHand( E, A, D, G, B, e);
+		this->drawHand( n );
 	}
 
-	void drawHand( int E, int A, int D, int G, int B, int e);
+	void drawHand( note n );
 
 private:
 	void finger(double th, double r_base,
-				const double boneLen[], int strings[], vector<int> map);
+				const double boneLen[], note n);
 
 	vector<int> get_finger_map(int strings[]);
 
@@ -58,7 +62,9 @@ private:
 	double get_finger_x(int fret_num);
 	double get_finger_y(int str_num);
 	int get_wrist_fretnum( int E, int A, int D, int G, int B, int e);
-	double get_wrist_theta( int E, int A, int D, int G, int B, int e);
+	double get_wrist_theta( note n );
+
+	vector<double> get_finger_tip( note n );
 
 	void draw_axes( float r, float g, float b);
 
@@ -68,3 +74,21 @@ private:
 };
 
 
+class finger
+{
+public:
+	finger(const double lens[3])
+	{
+		jointLen[0] = lens[0];
+		jointLen[1] = lens[1];
+		jointLen[2] = lens[2];
+	}
+
+	double tip[3];
+	double base[3];
+
+	// Joints
+	double j1[3];
+	double j2[3];
+	double jointLen[3];
+};

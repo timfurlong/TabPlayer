@@ -10,6 +10,7 @@
 #include "shape.h"
 #include "hand.h"
 #include "Database.h"
+// #include "note.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +22,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <map>
+#include <queue>
 using std::cerr;
 using std::cout;
 using std::endl;
@@ -73,6 +74,7 @@ const double neck_length         = 5;
 const double neck_r              = .3;
 const double fretboard_thickness = 0.06;
 const double fret_r              = 0.02;
+// Indexed from highest fret numbers (close to guitar body) to highest fret numbers
 const double fret_position[]     = {
 	0.978378, 0.955683, 0.931640, 0.906167, 0.879180,
 	0.850588, 0.820295, 0.788202, 0.754199, 0.718177,
@@ -93,6 +95,15 @@ const double str_width[6] = {
 	.036,
 	.046
 	};
+double str_y[6];
+
+// Hand variables/values
+vector< finger > fingers;
+const double thumbLen[2] = {0.3, 0.2};
+const double indexLen[3] = { 0.3, 0.3, 0.2};
+const double middleLen[3] = { 0.3, 0.3, 0.2};
+const double ringLen[3] = { 0.3, 0.3, 0.2};
+const double pinkyLen[3] = {0.2, 0.2, 0.1};
 
 // Texture values
 unsigned int texture[6];  //  Texture names
@@ -104,17 +115,7 @@ int rep=1;        //  Repitition
 #define Cos(th) cos(3.1415926/180*(th))
 #define Sin(th) sin(3.1415926/180*(th))
 
-
-struct note
-{
-	int note_num;
-	int duration;
-	int fret;
-	int string;
-	int fingering;
-	char* step;
-};
-vector< note > notes;
+queue< note > notes;
 
 void stageFloor(double y)
 {
@@ -269,7 +270,6 @@ void display()
 		// glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambient);
 		// glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spotDirection);
 
-
 	}
 
 	//    ||* * * * * * * * * ********************************
@@ -291,34 +291,11 @@ void display()
 
 	guitar( 0,0,0, 1,0,0, 0,1,0);
 	// stageFloor(-2);
-	// printf("%s\n", "=== G chord");
-	hand( 3,
-		   2,
-		   0,
-		   0,
-		   0,
-		   3);
-	// printf("%s\n", "=== D chord");
-	hand( 0,
-		   0,
-		   0,
-		   2,
-		   3,
-		   2);
-	// printf("%s\n", "=== C chord");
-	hand( 0,
-		   3,
-		   2,
-		   0,
-		   1,
-		   0);
-	// printf("%s\n", "=== A bar chord");
-	// hand( 5,x
-	// 	   7,
-	// 	   7,
-	// 	   6,
-	// 	   5,
-	// 	   5);
+	hand( notes.front() );
+	// Move to next note, and put current note at end of queue
+	// notes.push(notes.front());
+	// notes.pop();
+
 	//  Draw axes
 	glDisable(GL_LIGHTING);
 	drawAxes();
@@ -483,31 +460,6 @@ void reshape(int width,int height)
 	Project(pMode?fov:0,asp,dim);
 }
 
-bool Init(){
-	//  Load textures
-	texture[0] = LoadTexBMP("Data/Mahogany.bmp");
-	texture[1] = LoadTexBMP("Data/rosewood2.bmp");
-	texture[2] = LoadTexBMP("Data/pearlyInlay.bmp");
-	texture[3] = LoadTexBMP("Data/carpet.bmp");
-	texture[4] = LoadTexBMP("Data/woodFlooring.bmp");
-	texture[5] = LoadTexBMP("Data/wound_strings.bmp");
-
-	// Get database information
-	Database *db;
-	db = new Database((char *)"Data/noteData.db");
-	vector<vector<string> > result = db->query( (char *)"SELECT * FROM notes\
-																WHERE song='Data/testdata.xml';" );
-	vector< map<string, int> > notes;
-	for(vector<vector<string> >::iterator it = result.begin(); it < result.end(); ++it)
-	{
-	    vector<string> row = *it;
-	    cout << "Values: (row[0])=" << row[0] << ", row[1])=" << row[1] << ")" << endl;
-	}
-	db->close();
-
-	return true;
-}
-
 bool Init(int argc,char* argv[]){
 	char *songname;
 	//  Load textures
@@ -529,6 +481,7 @@ bool Init(int argc,char* argv[]){
 	char q[50];
 	sprintf( q, (char *)"SELECT * FROM notes WHERE song='%s';", songname);
 	vector<vector<string> > result = db->query( q );
+	// Fill the notes vector with note structs
 	note n;
 	for(vector<vector<string> >::iterator it = result.begin(); it < result.end(); ++it)
 	{
@@ -539,15 +492,21 @@ bool Init(int argc,char* argv[]){
 		n.string    = atoi( row[4].c_str() );
 		n.fingering = atoi( row[5].c_str() );
 		n.step      = (char*)row[6].c_str();
-	   notes.insert( notes.end(), n );
-	    // cout << "Values: (row[0])=" << row[0] << ", row[1])=" << row[1] << ")" << endl;
+	   notes.push( n );
 	}
-	for(vector<note>::iterator it = notes.begin(); it< notes.end(); it++){
-		note n = *it;
+	for(int i=0; i<notes.size(); i++){
+		note n = notes.front();
 		printf("%d, %s, %d\n", n.note_num, n.step, n.fret);
+		notes.push( notes.front() );
+		notes.pop();
 	}
 	db->close();
 
+	fingers.push_back( finger(indexLen) );
+	fingers.push_back( finger(middleLen) );
+	fingers.push_back( finger(ringLen) );
+	fingers.push_back( finger(pinkyLen) );
+	fingers.push_back( finger(thumbLen) );
 	return true;
 }
 /*

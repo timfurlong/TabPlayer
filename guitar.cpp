@@ -217,32 +217,31 @@ void guitar::strings()
 	const int rep                   = 200;
 
 	double z = fretboard_thickness + fret_r + str_fret_dist;
-	double y;
 	double r;
 
 	glColor3f(1,1,1);
 	for (int i=0; i<6; i++){
-		y = neck_r * (2*(double(i)+1))/7 - neck_r;
-		y *= str_spacing_factor;
+		str_y[i] = neck_r * (2*(double(i)+1))/7 - neck_r;
+		str_y[i] *= str_spacing_factor;
 		r = scale_factor * str_width[i];
 
 		// Left
 		glBegin(GL_TRIANGLE_FAN);
 			glNormal3f(-1,0,0);
-			glVertex3f(0, y, z);
+			glVertex3f(0, str_y[i], z);
 			for (int j=0; j<=360; j+=2){
 				glTexCoord2f(Cos(j)+0.5,Sin(j)+0.5);
-				glVertex3f(0, y+r*Cos(j) , r*Sin(j)+z);
+				glVertex3f(0, str_y[i]+r*Cos(j) , r*Sin(j)+z);
 			}
 		glEnd();
 
 		// Right
 		glBegin(GL_TRIANGLE_FAN);
 			glNormal3f(1,0,0);
-			glVertex3f(neck_length, y, z);
+			glVertex3f(neck_length, str_y[i], z);
 			for (int j=0; j<=360; j+=2){
 				glTexCoord2f(Cos(j)+0.5,Sin(j)+0.5);
-				glVertex3f(neck_length, y+r*Cos(j) , r*Sin(j)+z);
+				glVertex3f(neck_length, str_y[i]+r*Cos(j) , r*Sin(j)+z);
 			}
 		glEnd();
 
@@ -255,15 +254,15 @@ void guitar::strings()
 				glNormal3f(Cos(j),0,Sin(j));
 				glTexCoord2f(0, (float(j)/360)*rep);
 				glVertex3f(0,
-							y+r*Cos(j), r*Sin(j)+z);
+							str_y[i]+r*Cos(j), r*Sin(j)+z);
 				glTexCoord2f(rep, (float(j)/360)*rep);
 				glVertex3f(neck_length,
-							y+r*Cos(j), r*Sin(j)+z);
+							str_y[i]+r*Cos(j), r*Sin(j)+z);
 			}
 		glEnd();
 		glDisable(GL_TEXTURE_2D);
-		// renderCylinder_convenient( 0,y,z,
-		// 						   1,y,z,
+		// renderCylinder_convenient( 0,str_y[i],z,
+		// 						   1,str_y[i],z,
 		// 						   scale_factor * str_width[i],  15);
 	}
 	ErrCheck("strings");
