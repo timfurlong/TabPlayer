@@ -66,6 +66,40 @@ vector<double> GetVertex(double th, double ph, double r,
 
 	return v;
 }
+
+vector<double> getTranslateCoord(double x, double y, double z, vector<double> pt)
+{
+	pt[0] = pt[0] + x;
+	pt[1] = pt[1] + y;
+	pt[2] = pt[2] + z;
+	return pt;
+}
+vector<double> getRotateCoord(double th, int rx, int ry, int rz,
+										vector<double> pt)
+{
+	vector<double> np;
+	if (rx == 1)
+	{
+		np.push_back(pt[0]);
+		np.push_back(pt[1]*Cos(th)-pt[2]*Sin(th));
+		np.push_back(pt[1]*Sin(th)+pt[2]*Cos(th));
+	}
+	else if (ry == 1)
+	{
+		np.push_back( pt[0]*Cos(th)+pt[2]*Sin(th) );
+		np.push_back( pt[1] );
+		np.push_back( -pt[0]*Sin(th)+pt[2]*Cos(th) );
+	}
+	else if (rz ==1)
+	{
+		np.push_back(pt[0]*Cos(th)-pt[1]*Sin(th));
+		np.push_back(pt[0]*Sin(th)+pt[1]*Cos(th));
+		np.push_back(pt[2]);
+	}
+
+	return np;
+}
+
 /*
 *  Draw vertex in polar coordinates with normal, r away from the radius.
 */

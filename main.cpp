@@ -36,6 +36,7 @@ using namespace std;
 #include <GL/glut.h>
 #endif
 
+int show_guitar = 1;
 int axes   = 0;     //  Display axes
 int pMode  = 1;     //  Projection mode
 int move   = 1;     //  Move light
@@ -289,7 +290,8 @@ void display()
 	//    ||
 	//    ||
 
-	guitar( 0,0,0, 1,0,0, 0,1,0);
+	if (show_guitar)
+		guitar( 0,0,0, 1,0,0, 0,1,0);
 	// stageFloor(-2);
 	hand( notes.front() );
 	// Move to next note, and put current note at end of queue
@@ -385,6 +387,8 @@ void key(unsigned char ch,int x,int y)
 		//  Toggle axes
 		else if (ch == 'x' || ch == 'X')
 			axes = 1-axes;
+		else if (ch == 'g' || ch == 'G')
+			show_guitar = 1-show_guitar;
 		//  Toggle lighting mode
 		else if (ch == 'l' || ch == 'L')
 			light = 1-light;
@@ -502,11 +506,11 @@ bool Init(int argc,char* argv[]){
 	}
 	db->close();
 
-	fingers.push_back( finger(indexLen) );
-	fingers.push_back( finger(middleLen) );
-	fingers.push_back( finger(ringLen) );
-	fingers.push_back( finger(pinkyLen) );
-	fingers.push_back( finger(thumbLen) );
+	fingers.push_back( finger(indexLen, 1) );
+	fingers.push_back( finger(middleLen, 2) );
+	fingers.push_back( finger(ringLen, 3) );
+	fingers.push_back( finger(pinkyLen, 4) );
+	fingers.push_back( finger(thumbLen, 5) );
 	return true;
 }
 /*

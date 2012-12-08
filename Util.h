@@ -70,6 +70,10 @@ vector<double> GetVertex(double th, double ph, double r);
 vector<double> GetVertex(double th, double ph, double r,
 								 double dx, double dy, double dz);
 
+vector<double> getTranslateCoord(double x, double y, double z, vector<double> pt);
+vector<double> getRotateCoord(double th, int rx, int ry, int rz,
+										vector<double> pt);
+
 bool contains(int num, int array[], int arraySize);
 bool contains( vector<int> v, int num);
 

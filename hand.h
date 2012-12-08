@@ -41,6 +41,33 @@ extern double str_y[6];
 
 
 const double buffHelp = 0.000000001;
+// Base parameters
+const double fingerTh[5] = { 75, 90, 105, 120, 10};
+const double baseLen[5]  = { 0.5,  0.5, 0.5,   0.35, .25};
+#define PI 3.1415927
+
+
+class finger
+{
+public:
+	finger(const double lens[3], int num)
+	{
+		jointLen[0] = lens[0];
+		jointLen[1] = lens[1];
+		jointLen[2] = lens[2];
+		fingNum     = num;
+	}
+
+	vector<double> tip;
+	vector<double> base;
+
+	// Joints
+	double j1[3];
+	double j2[3];
+	double jointLen[3];
+	int fingNum;
+};
+extern vector< finger > fingers;
 
 class hand
 {
@@ -53,42 +80,24 @@ public:
 	void drawHand( note n );
 
 private:
-	void finger(double th, double r_base,
-				const double boneLen[], note n);
+	// void finger(double th, double r_base,
+	// 			const double boneLen[], note n);
 
 	vector<int> get_finger_map(int strings[]);
 
 	double get_fret_x(int fret_num);
 	double get_finger_x(int fret_num);
 	double get_finger_y(int str_num);
-	int get_wrist_fretnum( int E, int A, int D, int G, int B, int e);
+	double get_wrist_x( note n );
 	double get_wrist_theta( note n );
 
-	vector<double> get_finger_tip( note n );
+	vector<double> get_finger_tip( note n, finger f, vector<double> wrist_pt );
 
 	void draw_axes( float r, float g, float b);
 
 	// ~hand();
 
 	/* data */
+	double theta;
 };
 
-
-class finger
-{
-public:
-	finger(const double lens[3])
-	{
-		jointLen[0] = lens[0];
-		jointLen[1] = lens[1];
-		jointLen[2] = lens[2];
-	}
-
-	double tip[3];
-	double base[3];
-
-	// Joints
-	double j1[3];
-	double j2[3];
-	double jointLen[3];
-};
