@@ -42,29 +42,40 @@ extern double str_y[6];
 
 const double buffHelp = 0.000000001;
 // Base parameters
-const double fingerTh[5] = { 75, 90, 105, 120, 10};
-const double baseLen[5]  = { 0.5,  0.5, 0.5,   0.35, .25};
+const double fingerTh[5] = {74.97, 87.12, 98.83, 115.30, 52.33};
+const double baseLen[5]  = {0.59, 0.56, 0.51, 0.49, 0.49 };
+
 #define PI 3.1415927
 
 
 class finger
 {
 public:
-	finger(const double lens[3], int num)
+	// finger(const double lens[3], int num)
+	// {
+	// 	jointLen[0] = lens[0];
+	// 	jointLen[1] = lens[1];
+	// 	jointLen[2] = lens[2];
+	// 	fingNum     = num;
+	// }
+	finger(const double lens[], int numBones, int fingNum)
 	{
-		jointLen[0] = lens[0];
-		jointLen[1] = lens[1];
-		jointLen[2] = lens[2];
-		fingNum     = num;
+		this->fingNum   = fingNum;
+		this->numBones  = numBones;
+		this->numJoints = numBones - 1;
+		for (int i=0; i<numBones; i++){
+			boneLen.push_back( lens[i] );
+		}
 	}
-
 	vector<double> tip;
 	vector<double> base;
 
 	// Joints
-	double j1[3];
-	double j2[3];
-	double jointLen[3];
+	vector< vector<double> > joints;
+	int numJoints;
+
+	vector<double> boneLen;
+	int numBones;
 	int fingNum;
 };
 extern vector< finger > fingers;
@@ -91,7 +102,7 @@ private:
 	double get_wrist_x( note n );
 	double get_wrist_theta( note n );
 
-	vector<double> get_finger_tip( note n, finger f, vector<double> wrist_pt );
+	void get_finger_pts( note n, finger& f, vector<double> wrist_pt );
 
 	void draw_axes( float r, float g, float b);
 

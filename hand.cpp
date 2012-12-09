@@ -64,29 +64,11 @@ void hand::drawHand( note n )
 	wrist_pt = getRotateCoord(theta, 0,1,0, wrist_pt);
 	wrist_pt = getRotateCoord(-90, 0,0,1, wrist_pt);
 	wrist_pt = getTranslateCoord(x,0,0, wrist_pt);
-	fingers[0].tip = get_finger_tip( n, fingers[0], wrist_pt);
-	fingers[1].tip = get_finger_tip( n, fingers[1], wrist_pt);
-	fingers[2].tip = get_finger_tip( n, fingers[2], wrist_pt);
-	fingers[3].tip = get_finger_tip( n, fingers[3], wrist_pt);
-	fingers[4].tip = get_finger_tip( n, fingers[4], wrist_pt);
-	glColor3f(1,0,0);
-	glBegin(GL_LINES);
-		finger f = fingers[0];
-		glVertex3d(f.base[0],f.base[1],f.base[2]);
-		glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
-		f = fingers[1];
-		glVertex3d(f.base[0],f.base[1],f.base[2]);
-		glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
-		f = fingers[2];
-		glVertex3d(f.base[0],f.base[1],f.base[2]);
-		glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
-		f = fingers[3];
-		glVertex3d(f.base[0],f.base[1],f.base[2]);
-		glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
-		f = fingers[4];
-		glVertex3d(f.base[0],f.base[1],f.base[2]);
-		glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
-	glEnd();
+	get_finger_pts( n, fingers[0], wrist_pt);
+	get_finger_pts( n, fingers[1], wrist_pt);
+	get_finger_pts( n, fingers[2], wrist_pt);
+	get_finger_pts( n, fingers[3], wrist_pt);
+	get_finger_pts( n, fingers[4], wrist_pt);
 	// Get the cooresponding place to put the tip of each finger
 
 	// for (int i=0; i<6; i++){
@@ -96,49 +78,78 @@ void hand::drawHand( note n )
 }
 
 
-vector<double> hand::get_finger_tip( note n, finger f, vector<double> wrist_pt )
+void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 {
 	const double fret_dist = 0.3;
-	double x, y;
-	vector<double> xyz;
-	if (f.fingNum == n.fingering)
+	double tx, ty, tz; // Vector from base to tip
+	vector<double> j; // Vector for filling with joint's XYZ
+	j.assign(3, 0); // Initialize blank
+	if (f.fingNum == n.fingering && n.fret != 0)
 	{
+		double fret_diff;
+		fret_diff = fret_position[num_frets-n.fret]-fret_position[num_frets-n.fret+1];
+
 		// lowest n.string is 1, not 0. This is just MusicXML standard
-		y = str_y[ n.string - 1];
+		tx = fret_position[ num_frets - n.fret ]- (fret_diff * fret_dist);
+		tx *= neck_length;
+		tx -= neck_length/2;
+		ty = str_y[ n.string - 1];
+		tz = fretboard_thickness;
+		f.tip.push_back(tx);
+		f.tip.push_back(ty);
+		f.tip.push_back(tz);
 
-		double fret_diff = fret_position[num_frets-n.fret]-fret_position[num_frets-n.fret+1];
-		x = fret_position[ num_frets - n.fret ]- (fret_diff * fret_dist);
-		x *= neck_length;
-		x -= neck_length/2;
+		j[0] = tx; // TODO: angle this towards the wrist
+		j[1] = (f.boneLen.back()/sqrt(2)) - ty;
+		j[2] = (f.boneLen.back()/sqrt(2)) + tz;
+		f.joints.push_back( j );
 
-		xyz.push_back(x);
-		xyz.push_back(y);
-		xyz.push_back( fretboard_thickness );
+		glBegin(GL_LINES);
+			glVertex3d(f.base[0],f.base[1],f.base[2]);
+			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
+
+			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
+			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
+		glEnd();
 	}
 	else
 	{
 		double dx, dy, dz; // Vector from wrist to base
 		double fingLen; // Total length of finger
-		fingLen = f.jointLen[0] + f.jointLen[1] + f.jointLen[2];
+		vector<double> currentJoint;
+		fingLen = f.boneLen[0] + f.boneLen[1] + f.boneLen[2];
 
 		dx = f.base[0] - wrist_pt[0];
 		dy = f.base[1] - wrist_pt[1];
 		dz = f.base[2] - wrist_pt[2];
-		dx *= fingLen/baseLen[0];
-		dy *= fingLen/baseLen[1];
-		dz *= fingLen/baseLen[2];
-		dx += f.base[0];
-		dy += f.base[1];
-		dz += f.base[2];
-		xyz.push_back( dx );
-		xyz.push_back( dy );
-		xyz.push_back( dz );
+
+		tx = dx * fingLen/baseLen[0] + f.base[0];
+		ty = dy * fingLen/baseLen[1] + f.base[1];
+		tz = dz * fingLen/baseLen[2] + f.base[2];
+		f.tip.push_back( tx );
+		f.tip.push_back( ty );
+		f.tip.push_back( tz );
+
+		currentJoint = f.base;
+		for (int i=0; i<f.numJoints; i++){
+			j[0] = dx * f.boneLen[i]/baseLen[0] + currentJoint[0];
+			j[1] = dy * f.boneLen[i]/baseLen[1] + currentJoint[1];
+			j[2] = dz * f.boneLen[i]/baseLen[2] + currentJoint[2];
+			f.joints.push_back( j );
+			currentJoint = j;
+		}
+		glPointSize(5);
+		glBegin(GL_POINTS);
+			for (int i=0; i<f.numJoints; i++){
+				j = f.joints[i];
+				glVertex3d(j[0],j[1],j[2]);
+			}
+		glEnd();
+		glBegin(GL_LINES);
+			glVertex3d(f.base[0],f.base[1],f.base[2]);
+			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
+		glEnd();
 	}
-	// glPointSize(20);
-	// glBegin(GL_POINTS);
-	// 	glVertex3d(wrist_pt[0],wrist_pt[1],wrist_pt[2]);
-	// glEnd();
-	return xyz;
 }
 // void hand::finger(double th, double r_base,
 // 				const double boneLen[], note n)

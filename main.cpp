@@ -100,11 +100,11 @@ double str_y[6];
 
 // Hand variables/values
 vector< finger > fingers;
-const double thumbLen[2] = {0.3, 0.2};
-const double indexLen[3] = { 0.3, 0.3, 0.2};
-const double middleLen[3] = { 0.3, 0.3, 0.2};
-const double ringLen[3] = { 0.3, 0.3, 0.2};
-const double pinkyLen[3] = {0.2, 0.2, 0.1};
+const double indexLen[3] ={0.17, 0.10, 0.08};
+const double middleLen[3] ={0.20, 0.13, 0.08};
+const double ringLen[3] ={0.20, 0.11, 0.10};
+const double pinkyLen[3] ={0.16, 0.09, 0.08};
+const double thumbLen[2] ={0.14, 0.14};
 
 // Texture values
 unsigned int texture[6];  //  Texture names
@@ -506,11 +506,11 @@ bool Init(int argc,char* argv[]){
 	}
 	db->close();
 
-	fingers.push_back( finger(indexLen, 1) );
-	fingers.push_back( finger(middleLen, 2) );
-	fingers.push_back( finger(ringLen, 3) );
-	fingers.push_back( finger(pinkyLen, 4) );
-	fingers.push_back( finger(thumbLen, 5) );
+	fingers.push_back( finger(indexLen, 3, 1) );
+	fingers.push_back( finger(middleLen, 3, 2) );
+	fingers.push_back( finger(ringLen, 3, 3) );
+	fingers.push_back( finger(pinkyLen, 3, 4) );
+	fingers.push_back( finger(thumbLen, 2, 5) );
 	return true;
 }
 /*
