@@ -102,9 +102,13 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		f.tip.push_back(tz);
 
 		j[0] = tx; // TODO: angle this towards the wrist
-		j[1] = (f.boneLen.back()/sqrt(2)) - ty;
+		j[1] = ty - (f.boneLen.back()/sqrt(2));
 		j[2] = (f.boneLen.back()/sqrt(2)) + tz;
 		f.joints.push_back( j );
+		glPointSize(5);
+		glBegin(GL_POINTS);
+			glVertex3f(j[0], j[1], j[2]);
+		glEnd();
 
 		glBegin(GL_LINES);
 			glVertex3d(f.base[0],f.base[1],f.base[2]);
