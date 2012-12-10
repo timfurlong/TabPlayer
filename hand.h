@@ -44,7 +44,7 @@ const double buffHelp = 0.000000001;
 // Base parameters
 const double fingerTh[5] = {74.97, 87.12, 98.83, 115.30, 52.33};
 // const double baseLen[5]  = {0.59, 0.56, 0.51, 0.49, 0.49 };
-const double baseLen[5]  = {0.88, 0.84, 0.76, 0.73, 0.73};
+const double baseLen[5]  = {1.17, 1.11, 1.02, 0.97, 0.98};
 
 #define PI 3.1415927
 
@@ -76,10 +76,7 @@ extern vector< finger > fingers;
 class hand
 {
 public:
-	hand( note n )
-	{
-		this->drawHand( n );
-	}
+	hand( note );
 
 	void drawHand( note n );
 
@@ -103,5 +100,7 @@ private:
 
 	/* data */
 	double theta;
+	vector<double> wrist;
+	vector< vector<double> > fingBases;
 };
 

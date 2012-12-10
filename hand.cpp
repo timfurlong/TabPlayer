@@ -1,54 +1,10 @@
 #include "hand.h"
 
 
-/*
- *  Draw the hand
- *     at (x,y,z)
- *     fingers facing (dx,dy,dz)
- *     up towards (ux,uy,uz)
- */
-void hand::drawHand( note n )
-{
-
-	double mat[16];
-	double fingerBase[15];
+hand::hand( note n ){
 	vector<double> pt;
-
+	double x = get_wrist_x(n);
 	theta = get_wrist_theta(n);
-	double x     = get_wrist_x(n);
-	getMatrix(  1,0,0,
-					0,1,0,  mat);
-	//  Save transformation
-	glPushMatrix();
-
-	//  Offset
-	glTranslated( x, 0, 0 );
-	glRotated(-90, 0,0,1);
-	glRotated(theta, 0,1,0);
-	glMultMatrixd(mat);
-	draw_axes(0,1,0);
-	// Begin drawing  =================================
-
-	// Hand Base
-	glColor3f( 0, 0, 1 );
-	glBegin(GL_LINES);
-		for (int i=0; i<5; i++){
-			glVertex3d(0,0,-(neck_r+buffHelp));
-			Vertex( fingerTh[i], 0, baseLen[i],
-						0,0,-(neck_r+buffHelp) );
-			fingerBase[i*2]   = fingerTh[i];
-			fingerBase[i*2+1] = baseLen[i];
-		}
-	glEnd();
-
-	// Fingers
-	glColor3f( 1,0,0 );
-	// for (int i=0; i<6; i++){
-	// 	finger(fingerBase[2], fingerBase[3], indexLen, n);
-	// }
-
-	//  Undo transformations
-	glPopMatrix();
 
 	// Give each finger instance the location of the cooresponding hand base
 	for (int i=0; i<5; i++){
@@ -58,22 +14,47 @@ void hand::drawHand( note n )
 		pt = getRotateCoord(-90, 0,0,1, pt);
 		pt = getTranslateCoord(x,0,0, pt);
 		fingers[i].base = pt;
+		this->fingBases.push_back( pt );
 	}
 	vector<double> wrist_pt; wrist_pt.assign(3, 0);
 	wrist_pt[0]=0; wrist_pt[1]=0; wrist_pt[2]=-(neck_r+buffHelp);
 	wrist_pt = getRotateCoord(theta, 0,1,0, wrist_pt);
 	wrist_pt = getRotateCoord(-90, 0,0,1, wrist_pt);
 	wrist_pt = getTranslateCoord(x,0,0, wrist_pt);
-	get_finger_pts( n, fingers[0], wrist_pt);
-	get_finger_pts( n, fingers[1], wrist_pt);
-	get_finger_pts( n, fingers[2], wrist_pt);
-	get_finger_pts( n, fingers[3], wrist_pt);
-	get_finger_pts( n, fingers[4], wrist_pt);
-	// Get the cooresponding place to put the tip of each finger
+	this->wrist = wrist_pt;
+	get_finger_pts( n, fingers[0], wrist_pt );
+	get_finger_pts( n, fingers[1], wrist_pt );
+	get_finger_pts( n, fingers[2], wrist_pt );
+	get_finger_pts( n, fingers[3], wrist_pt );
+	get_finger_pts( n, fingers[4], wrist_pt );
 
-	// for (int i=0; i<6; i++){
-	// 	finger(fingerBase[0], fingerBase[1], thumbLen, strings);
-	// }
+	this->drawHand( n );
+}
+
+/*
+ *  Draw the hand
+ *     at (x,y,z)
+ *     fingers facing (dx,dy,dz)
+ *     up towards (ux,uy,uz)
+ */
+void hand::drawHand( note n )
+{
+
+	vector<double> pt;
+
+	// Begin drawing  =================================
+
+	// Hand Base
+	glColor3f( 0, 0, 1 );
+	glBegin(GL_LINES);
+		for (int i=0; i<5; i++){
+			glVertex3d(this->wrist[0],this->wrist[1],this->wrist[2]);
+			glVertex3d(this->fingBases[i][0],this->fingBases[i][1],this->fingBases[i][2]);
+		}
+	glEnd();
+
+	// Fingers
+	glColor3f( 1,0,0 );
 	ErrCheck("hand");
 }
 
@@ -110,7 +91,6 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		if (f.numJoints < 2)
 			return;
 		th = degrees( atan( (last_j[1]-f.base[1]) / (last_j[0]-f.base[0]) ) );
-		printf("dy=%f, dx=%f, th=%f\n", (last_j[1]-f.base[1]) ,(last_j[0]-f.base[0]) ,th );
 		j[0] = last_j[0] - f.boneLen[1] * Cos(th);
 		j[1] = last_j[1] - f.boneLen[1] * Sin(th);
 		j[2] = last_j[2];
@@ -174,44 +154,6 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		glEnd();
 	}
 }
-// void hand::finger(double th, double r_base,
-// 				const double boneLen[], note n)
-// {
-// 	// int numBones = sizeof(*boneLen) / sizeof(double);
-
-// 	vector<double> pt;
-// 	vector<double> pts;
-// 	double ph = 0;
-// 	double r = r_base;
-// 	double x, y;
-
-// 	for (int i=0; i<6; i++){
-// 		if (strings[i] == 1)
-// 		{
-// 			glPushMatrix();
-// 				glBegin( GL_LINES );
-// 					x = get_finger_x(1);
-// 					// y = get_finger_y()
-// 				glEnd();
-// 			glPopMatrix();
-// 			ErrCheck("finger");
-// 		}
-// 	}
-// }
-// glPushMatrix();
-// 	pt = GetVertex(th, ph, r,
-// 						0,0,-neck_r);
-// 	for (int i=0; i<3; i++)
-// 	{
-// 		glTranslated( pt[0], pt[1], pt[2] );
-// 		ph += boneAngle[i];
-// 		pt = GetVertex(th, ph, boneLen[i]);
-// 		glBegin(GL_LINES);
-// 			glVertex3d( 0,0,0 );
-// 			glVertex3d( pt[0], pt[1], pt[2] );
-// 		glEnd();
-// 	}
-// glPopMatrix();
 
 double hand::get_fret_x(int fret_num)
 {
@@ -252,7 +194,7 @@ double hand::get_wrist_x( note n )
 
 double hand::get_wrist_theta( note n )
 {
-	const double max_theta = -40;
+	const double max_theta = -30;
 	if (n.string < 4)
 		return 0;
 	return (max_theta - (max_theta/3)*(6-n.string));
