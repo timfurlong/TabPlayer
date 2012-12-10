@@ -117,6 +117,11 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
 			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
 		glEnd();
+
+		if (f.numJoints < 2)
+			return;
+		double theta = atan( (j[1]-f.base[1]) / (j[2]-f.base[2]) );
+		printf("%f\n", theta);
 	}
 	else
 	{
