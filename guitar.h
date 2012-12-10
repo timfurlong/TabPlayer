@@ -51,6 +51,7 @@ extern const double inlay_r;
 extern const double tiny_inlay_r;
 extern const double str_width[6];
 extern double str_y[6];
+extern const double str_fret_dist;
 
 class guitar
 {

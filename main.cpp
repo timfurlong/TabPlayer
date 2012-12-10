@@ -99,16 +99,16 @@ const double str_width[6] = {
 	.036,
 	.046
 	};
+const double str_fret_dist      = 0.05;
 double str_y[6];
 
 // Hand variables/values
 vector< finger > fingers;
-const double indexLen[3] ={0.17, 0.10, 0.08};
-const double middleLen[3] ={0.20, 0.13, 0.08};
-const double ringLen[3] ={0.20, 0.11, 0.10};
-const double pinkyLen[3] ={0.16, 0.09, 0.08};
-const double thumbLen[2] ={0.14, 0.14};
-
+const double indexLen[3] ={0.35, 0.20, 0.16};
+const double middleLen[3] ={0.39, 0.27, 0.16};
+const double ringLen[3] ={0.40, 0.22, 0.21};
+const double pinkyLen[3] ={0.31, 0.17, 0.17};
+const double thumbLen[2] ={0.28, 0.28};
 // Texture values
 unsigned int texture[6];  //  Texture names
 int tMode=0;

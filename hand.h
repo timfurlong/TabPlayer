@@ -38,15 +38,15 @@ extern const double fretboard_thickness;
 extern int axes;
 extern queue<note> notes;
 extern double str_y[6];
-
+extern const double str_fret_dist;
 
 const double buffHelp = 0.000000001;
 // Base parameters
 const double fingerTh[5] = {74.97, 87.12, 98.83, 115.30, 52.33};
-const double baseLen[5]  = {0.59, 0.56, 0.51, 0.49, 0.49 };
+// const double baseLen[5]  = {0.59, 0.56, 0.51, 0.49, 0.49 };
+const double baseLen[5]  = {0.88, 0.84, 0.76, 0.73, 0.73};
 
 #define PI 3.1415927
-
 
 class finger
 {

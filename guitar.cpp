@@ -212,7 +212,6 @@ void guitar::inlay(double x, double y, double z)
 
 void guitar::strings()
 {
-	const double str_fret_dist      = 0.05;
 	const double scale_factor       = 0.4;
 	const double str_spacing_factor = 1.1;
 	const int rep                   = 200;

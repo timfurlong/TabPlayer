@@ -25,6 +25,7 @@ using std::set;
 
 #define Cos(th) cos(3.1415926/180*(th))
 #define Sin(th) sin(3.1415926/180*(th))
+#define degrees(th) (180/3.1415926)*(th)
 
 extern int axes;
 extern int pMode;

@@ -81,8 +81,8 @@ void hand::drawHand( note n )
 void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 {
 	const double fret_dist = 0.3;
-	double tx, ty, tz; // Vector from base to tip
-	vector<double> j; // Vector for filling with joint's XYZ
+	double x, y, z, th;
+	vector<double> j, last_j; // Vectors for filling with joint's XYZ
 	j.assign(3, 0); // Initialize blank
 	if (f.fingNum == n.fingering && n.fret != 0)
 	{
@@ -92,36 +92,48 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		else
 			fret_diff = fret_position[n.fret-1]-fret_position[n.fret-2];
 		// lowest n.string is 1, not 0. This is just MusicXML standard
-		tx = fret_position[ n.fret-1 ]- (fret_diff * fret_dist);
-		tx *= neck_length;
-		tx -= neck_length/2;
-		ty = str_y[ n.string - 1];
-		tz = fretboard_thickness;
-		f.tip.push_back(tx);
-		f.tip.push_back(ty);
-		f.tip.push_back(tz);
+		x = fret_position[ n.fret-1 ]- (fret_diff * fret_dist);
+		x *= neck_length;
+		x -= neck_length/2;
+		y = str_y[ n.string - 1];
+		z = fretboard_thickness + str_fret_dist;
+		f.tip.push_back(x);
+		f.tip.push_back(y);
+		f.tip.push_back(z);
 
-		j[0] = tx; // TODO: angle this towards the wrist
-		j[1] = ty - (f.boneLen.back()/sqrt(2));
-		j[2] = (f.boneLen.back()/sqrt(2)) + tz;
-		f.joints.push_back( j );
-		glPointSize(5);
-		glBegin(GL_POINTS);
-			glVertex3f(j[0], j[1], j[2]);
-		glEnd();
+		j[0] = x; // TODO: angle this towards the wrist
+		j[1] = y - (f.boneLen.back()/sqrt(2));
+		j[2] = (f.boneLen.back()/sqrt(2)) + z;
+		f.joints.insert( f.joints.begin(), j );
+		last_j = j;
+
+		if (f.numJoints < 2)
+			return;
+		th = degrees( atan( (last_j[1]-f.base[1]) / (last_j[0]-f.base[0]) ) );
+		printf("dy=%f, dx=%f, th=%f\n", (last_j[1]-f.base[1]) ,(last_j[0]-f.base[0]) ,th );
+		j[0] = last_j[0] - f.boneLen[1] * Cos(th);
+		j[1] = last_j[1] - f.boneLen[1] * Sin(th);
+		j[2] = last_j[2];
+		f.joints.insert( f.joints.begin(), j );
 
 		glBegin(GL_LINES);
 			glVertex3d(f.base[0],f.base[1],f.base[2]);
 			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
 
 			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
+			glVertex3d(f.joints[1][0],f.joints[1][1],f.joints[1][2]);
+
+			glVertex3d(f.joints[1][0],f.joints[1][1],f.joints[1][2]);
 			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
 		glEnd();
 
-		if (f.numJoints < 2)
-			return;
-		double theta = atan( (j[1]-f.base[1]) / (j[2]-f.base[2]) );
-		printf("%f\n", theta);
+		glPointSize(5);
+		glBegin(GL_POINTS);
+			glVertex3d(f.base[0], f.base[1], f.base[2]);
+			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
+			glVertex3d(f.joints[1][0],f.joints[1][1],f.joints[1][2]);
+		glEnd();
+
 	}
 	else
 	{
@@ -134,12 +146,12 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		dy = f.base[1] - wrist_pt[1];
 		dz = f.base[2] - wrist_pt[2];
 
-		tx = dx * fingLen/baseLen[0] + f.base[0];
-		ty = dy * fingLen/baseLen[1] + f.base[1];
-		tz = dz * fingLen/baseLen[2] + f.base[2];
-		f.tip.push_back( tx );
-		f.tip.push_back( ty );
-		f.tip.push_back( tz );
+		x = dx * fingLen/baseLen[0] + f.base[0];
+		y = dy * fingLen/baseLen[1] + f.base[1];
+		z = dz * fingLen/baseLen[2] + f.base[2];
+		f.tip.push_back( x );
+		f.tip.push_back( y );
+		f.tip.push_back( z );
 
 		currentJoint = f.base;
 		for (int i=0; i<f.numJoints; i++){
