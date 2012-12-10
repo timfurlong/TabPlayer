@@ -51,13 +51,6 @@ const double baseLen[5]  = {0.59, 0.56, 0.51, 0.49, 0.49 };
 class finger
 {
 public:
-	// finger(const double lens[3], int num)
-	// {
-	// 	jointLen[0] = lens[0];
-	// 	jointLen[1] = lens[1];
-	// 	jointLen[2] = lens[2];
-	// 	fingNum     = num;
-	// }
 	finger(const double lens[], int numBones, int fingNum)
 	{
 		this->fingNum   = fingNum;

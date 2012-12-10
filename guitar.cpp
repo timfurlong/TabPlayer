@@ -143,6 +143,7 @@ void guitar::frets()
 	double X; // x position of fret
 	double last_X;
 	for (int fret=0; fret<num_frets; fret++){
+		// X = neck_length-neck_length*fret_position[fret];
 		X = neck_length*fret_position[fret];
 		// Draw the fret
 		// Top

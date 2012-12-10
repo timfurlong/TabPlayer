@@ -87,10 +87,12 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 	if (f.fingNum == n.fingering && n.fret != 0)
 	{
 		double fret_diff;
-		fret_diff = fret_position[num_frets-n.fret]-fret_position[num_frets-n.fret+1];
-
+		if (n.fret == 1)
+			fret_diff = fret_position[0];
+		else
+			fret_diff = fret_position[n.fret-1]-fret_position[n.fret-2];
 		// lowest n.string is 1, not 0. This is just MusicXML standard
-		tx = fret_position[ num_frets - n.fret ]- (fret_diff * fret_dist);
+		tx = fret_position[ n.fret-1 ]- (fret_diff * fret_dist);
 		tx *= neck_length;
 		tx -= neck_length/2;
 		ty = str_y[ n.string - 1];
@@ -194,7 +196,9 @@ double hand::get_fret_x(int fret_num)
 {
 	if (fret_num == 0)
 		return -neck_length/2;
-	return (fret_position[num_frets - fret_num] * neck_length)
+	// return (fret_position[num_frets - fret_num] * neck_length)
+	// 				- (neck_length/2);
+	return (fret_position[fret_num-1] * neck_length)
 					- (neck_length/2);
 
 }
@@ -221,7 +225,7 @@ double hand::get_finger_x( int fret_num )
 double hand::get_wrist_x( note n )
 {
 	double x = get_fret_x( n.fret );
-	x -= Cos(fingerTh[n.fingering]) * baseLen[n.fingering];
+	x -= Cos(fingerTh[n.fingering-1]) * baseLen[n.fingering-1];
 	return x;
 }
 
