@@ -40,8 +40,10 @@ hand::hand( note n ){
 void hand::drawHand( note n )
 {
 
-	vector<double> pt;
-
+	vector<double> pt, j;
+	vector<finger>::iterator f_it;
+	vector< vector<double> >::iterator j_it;
+	finger f = fingers[0]; //dummy assignment to avoid using a constructor
 	// Begin drawing  =================================
 
 	// Hand Base
@@ -55,7 +57,33 @@ void hand::drawHand( note n )
 
 	// Fingers
 	glColor3f( 1,0,0 );
-	ErrCheck("hand");
+	for(f_it = fingers.begin(); f_it != fingers.end(); f_it++){
+		glBegin(GL_LINE_STRIP);
+			f = *f_it;
+			glVertex3d(f.base[0],f.base[1],f.base[2]);
+			for (j_it=f.joints.begin(); j_it<f.joints.end(); j_it++){
+				j = *j_it;
+				glVertex3d(j[0],j[1],j[2]);
+			}
+			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
+		glEnd();
+	}
+	glColor3f( 0,1,0 );
+	glPointSize(5);
+	glBegin(GL_POINTS);
+		for(f_it = fingers.begin(); f_it != fingers.end(); f_it++){
+			f = *f_it;
+			glVertex3d(f.base[0],f.base[1],f.base[2]);
+			for (j_it=f.joints.begin(); j_it<f.joints.end(); j_it++){
+				j = *j_it;
+				glVertex3d(j[0],j[1],j[2]);
+			}
+			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
+		}
+	glEnd();
+	renderCylinder_convenient( 0,0,0,  1,1,1,
+										fingRadius, 10);
+	ErrCheck("drawHand");
 }
 
 
@@ -96,23 +124,6 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		j[2] = last_j[2];
 		f.joints.insert( f.joints.begin(), j );
 
-		glBegin(GL_LINES);
-			glVertex3d(f.base[0],f.base[1],f.base[2]);
-			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
-
-			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
-			glVertex3d(f.joints[1][0],f.joints[1][1],f.joints[1][2]);
-
-			glVertex3d(f.joints[1][0],f.joints[1][1],f.joints[1][2]);
-			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
-		glEnd();
-
-		glPointSize(5);
-		glBegin(GL_POINTS);
-			glVertex3d(f.base[0], f.base[1], f.base[2]);
-			glVertex3d(f.joints[0][0],f.joints[0][1],f.joints[0][2]);
-			glVertex3d(f.joints[1][0],f.joints[1][1],f.joints[1][2]);
-		glEnd();
 
 	}
 	else
@@ -141,17 +152,6 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 			f.joints.push_back( j );
 			currentJoint = j;
 		}
-		glPointSize(5);
-		glBegin(GL_POINTS);
-			for (int i=0; i<f.numJoints; i++){
-				j = f.joints[i];
-				glVertex3d(j[0],j[1],j[2]);
-			}
-		glEnd();
-		glBegin(GL_LINES);
-			glVertex3d(f.base[0],f.base[1],f.base[2]);
-			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
-		glEnd();
 	}
 }
 
