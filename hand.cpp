@@ -28,6 +28,17 @@ hand::hand( note n ){
 	get_finger_pts( n, fingers[3], wrist_pt );
 	get_finger_pts( n, fingers[4], wrist_pt );
 
+	// get max and min FingBaseLen
+	double maxLen = 0;
+	double minLen = 0;
+	for (int i=0; i<5; i++){
+		if (baseLen[i] > maxLen)
+			maxLen = baseLen[i];
+		if (baseLen[i] < minLen || minLen==0)
+			minLen = baseLen[i];
+	}
+	this->maxBaseLen = maxLen;
+	this->minBaseLen = minLen;
 	this->drawHand( n );
 }
 
@@ -40,7 +51,7 @@ hand::hand( note n ){
 void hand::drawHand( note n )
 {
 
-	vector<double> pt, j;
+	vector<double> pt, j, last_j;
 	vector<finger>::iterator f_it;
 	vector< vector<double> >::iterator j_it;
 	finger f = fingers[0]; //dummy assignment to avoid using a constructor
@@ -55,34 +66,74 @@ void hand::drawHand( note n )
 		}
 	glEnd();
 
-	// Fingers
-	glColor3f( 1,0,0 );
-	for(f_it = fingers.begin(); f_it != fingers.end(); f_it++){
-		glBegin(GL_LINE_STRIP);
-			f = *f_it;
-			glVertex3d(f.base[0],f.base[1],f.base[2]);
-			for (j_it=f.joints.begin(); j_it<f.joints.end(); j_it++){
-				j = *j_it;
-				glVertex3d(j[0],j[1],j[2]);
+	glPushMatrix();
+		glTranslated(this->wrist[0],this->wrist[1],this->wrist[2]);
+		glRotated(-90, 0,0,1);
+		glRotated(theta, 0,1,0);
+		draw_axes(1,1,1);
+		glColor3f(0,1,0);
+		glBegin( GL_TRIANGLE_FAN );
+			// glNormal3f(-1,0,0);
+			// glVertex3d(this->wrist[0],this->wrist[1],this->wrist[2]);
+			glVertex3d(0,0,0);
+			for (int j=0; j<=360; j+=2){
+				glVertex3f(0, enclosure_h * Cos(j) , enclosure_w * Sin(j));
 			}
-			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
 		glEnd();
+		glBegin( GL_TRIANGLE_FAN );
+			// glNormal3f(-1,0,0);
+			// glVertex3d(this->wrist[0],this->wrist[1],this->wrist[2]);
+			glVertex3d(this->maxBaseLen,0,0);
+			for (int j=0; j<=360; j+=2){
+				glVertex3f(this->maxBaseLen, enclosure_h * Cos(j) , enclosure_w * Sin(j));
+			}
+		glEnd();
+		glBegin( GL_TRIANGLE_FAN );
+			// glNormal3f(-1,0,0);
+			// glVertex3d(this->wrist[0],this->wrist[1],this->wrist[2]);
+			glVertex3d(this->minBaseLen,0,0);
+			for (int j=0; j<=360; j+=2){
+				glVertex3f(this->minBaseLen, enclosure_h * Cos(j) , enclosure_w * Sin(j));
+			}
+		glEnd();
+	glPopMatrix();
+
+	// Fingers
+	glColor3ub( fRGB[0], fRGB[1], fRGB[2] );
+	for(f_it = fingers.begin(); f_it != fingers.end(); f_it++){
+		f = *f_it;
+		j = f.joints.front();
+		renderCylinder_convenient( f.base[0],f.base[1],f.base[2],
+											j[0],j[1],j[2],
+											fingRadius, fingSubDiv);
+		for (j_it=f.joints.begin()+1; j_it<f.joints.end(); j_it++){
+			j      = *j_it;
+			last_j = *(j_it-1);
+			renderCylinder_convenient( last_j[0], last_j[1], last_j[2],
+												j[0], j[1], j[2],
+												fingRadius, fingSubDiv);
+		}
+		renderCylinder_convenient( j[0], j[1], j[2],
+											f.tip[0], f.tip[1], f.tip[2],
+											fingRadius, fingSubDiv);
 	}
 	glColor3f( 0,1,0 );
 	glPointSize(5);
-	glBegin(GL_POINTS);
-		for(f_it = fingers.begin(); f_it != fingers.end(); f_it++){
-			f = *f_it;
-			glVertex3d(f.base[0],f.base[1],f.base[2]);
-			for (j_it=f.joints.begin(); j_it<f.joints.end(); j_it++){
-				j = *j_it;
-				glVertex3d(j[0],j[1],j[2]);
-			}
-			glVertex3d(f.tip[0],f.tip[1],f.tip[2]);
+	for(f_it = fingers.begin(); f_it != fingers.end(); f_it++){
+		f = *f_it;
+		ball(f.base[0],f.base[1],f.base[2],
+				jRGB[0],jRGB[1],jRGB[2],
+				jointRadius);
+		for (j_it=f.joints.begin(); j_it<f.joints.end(); j_it++){
+			j = *j_it;
+			ball(j[0],j[1],j[2],
+					jRGB[0],jRGB[1],jRGB[2],
+					jointRadius);
 		}
-	glEnd();
-	renderCylinder_convenient( 0,0,0,  1,1,1,
-										fingRadius, 10);
+		ball(f.tip[0],f.tip[1],f.tip[2],
+				fRGB[0],fRGB[1],fRGB[2],
+				jointRadius);
+	}
 	ErrCheck("drawHand");
 }
 

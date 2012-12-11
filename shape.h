@@ -48,6 +48,10 @@ void box(double t[12],double b[12]);
 
 void ball(double x,double y,double z,double r);
 
+void ball(double x,double y,double z,
+			double r, double g, double b,
+			double radius);
+
 void cone( double tx, double ty, double tz,
 						double bx, double by, double bz,
 						double r, int subdivisions

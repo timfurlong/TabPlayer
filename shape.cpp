@@ -243,6 +243,27 @@ void ball(double x,double y,double z,double r)
 }
 
 /*
+ *  Draw a ball
+ *     at (x,y,z)
+ *     radius (r)
+ */
+void ball(double x,double y,double z,
+			double r, double g, double b,
+			double radius)
+{
+	//  Save transformation
+	glPushMatrix();
+	//  Offset, scale and rotate
+	glTranslated(x,y,z);
+	glScaled(radius,radius,radius);
+	//  White ball
+	glColor3ub(r,g,b);
+	glutSolidSphere(1.0,10,16);
+	//  Undo transofrmations
+	glPopMatrix();
+}
+
+/*
  *  Draw a cone
  *    with tip at (tx,ty,tz)
  *  	and base at (bx,by,bz)

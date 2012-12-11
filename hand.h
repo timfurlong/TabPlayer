@@ -44,9 +44,16 @@ extern const double str_fret_dist;
 const double buffHelp = 0.000000001;
 // Base parameters
 const double fingerTh[5] = {74.97, 87.12, 98.83, 115.30, 52.33};
-const double baseLen[5]  = {1.17, 1.11, 1.02, 0.97, 0.98};
-const double fingRadius = 0.03;
+const double fingRadius  = 0.05;
+const double fRGB[3] = {151,151,151};
 
+const double jRGB[3]     = {0,136,204};
+const double jointRadius = 0.05;
+const int fingSubDiv     = 10;
+
+const double baseLen[5]  = {1.17, 1.11, 1.02, 0.97, 0.98};
+const double enclosure_h = 0.5;
+const double enclosure_w = 0.2;
 #define PI 3.1415927
 
 class finger
@@ -103,5 +110,7 @@ private:
 	double theta;
 	vector<double> wrist;
 	vector< vector<double> > fingBases;
+	double maxBaseLen;
+	double minBaseLen;
 };
 
