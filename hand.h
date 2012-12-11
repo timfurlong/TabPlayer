@@ -43,17 +43,17 @@ extern const double str_fret_dist;
 
 const double buffHelp = 0.000000001;
 // Base parameters
-const double fingerTh[5] = {74.97, 87.12, 98.83, 115.30, 52.33};
+const double fingerTh[5] = {74.97, 87.12, 98.83, 115.30, 48.05};
 const double fingRadius  = 0.05;
-const double fRGB[3] = {151,151,151};
+const double hRGB[3] = {151,151,151};
 
 const double jRGB[3]     = {0,136,204};
 const double jointRadius = 0.05;
 const int fingSubDiv     = 10;
 
-const double baseLen[5]  = {1.17, 1.11, 1.02, 0.97, 0.98};
-const double enclosure_h = 0.5;
-const double enclosure_w = 0.2;
+const double baseLen[5] = {1.17, 1.11, 1.02, 0.97, 0.69};
+const double baseH      = 0.1;
+const double thHelp     = 4;
 #define PI 3.1415927
 
 class finger
@@ -61,6 +61,12 @@ class finger
 public:
 	finger(const double lens[], int numBones, int fingNum)
 	{
+		this->joints.clear();
+		this->base.clear() ;
+		this->tip.clear();
+		this->joints.clear();
+		this->boneLen.clear();
+
 		this->fingNum   = fingNum;
 		this->numBones  = numBones;
 		this->numJoints = numBones - 1;
@@ -74,19 +80,24 @@ public:
 	// Joints
 	vector< vector<double> > joints;
 	int numJoints;
-
+	// All relevant finger verticies: {base, joint 1, joint 2(, joint 3), tip}
+	vector< vector<double> > fVerts;
 	vector<double> boneLen;
 	int numBones;
 	int fingNum;
+
+private:
+
+
 };
 extern vector< finger > fingers;
 
 class hand
 {
 public:
-	hand( note );
-
-	void drawHand( note n );
+	hand( );
+	void setHand( note n, note prev_n, double t );
+	void drawHand( note n, vector<finger> prev_fingers );
 
 private:
 	// void finger(double th, double r_base,
@@ -112,5 +123,9 @@ private:
 	vector< vector<double> > fingBases;
 	double maxBaseLen;
 	double minBaseLen;
+	vector< vector<double> > baseVerts;
+
+	// Timing
+	double t_elapsed;
 };
 

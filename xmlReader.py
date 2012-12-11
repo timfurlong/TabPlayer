@@ -4,7 +4,7 @@ import os
 from pprint import pprint
 
 DB_PATH   = os.path.join( 'Data', 'noteData.db')
-SONG_XML = os.path.join( 'Data', 'testdata.xml' )
+SONG_XML = os.path.join( 'Data', 'onoffTest.xml' )
 
 def getTotalDuration(root):
 	total = 0
@@ -23,7 +23,12 @@ def getNoteData(root):
 		noteData['duration']  = int( n.find('duration').text )
 		noteData['fret']      = int( n.find('.//fret').text )
 		noteData['string']    = int( n.find('.//string').text )
-		noteData['fingering'] = int( n.find('.//fingering').text )
+
+		fingering =  n.find('.//fingering').text
+		if fingering == 'Open':
+			noteData['fingering'] = 0
+		else:
+			noteData['fingering'] = int( fingering )
 		noteData['note']      = n.find('.//step').text
 		data.append( noteData )
 		note_num += 1

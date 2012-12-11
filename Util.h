@@ -75,6 +75,7 @@ vector<double> getTranslateCoord(double x, double y, double z, vector<double> pt
 vector<double> getRotateCoord(double th, int rx, int ry, int rz,
 										vector<double> pt);
 
+void vectorAssignPt(vector<double>& v, double x, double y, double z);
 bool contains(int num, int array[], int arraySize);
 bool contains( vector<int> v, int num);
 

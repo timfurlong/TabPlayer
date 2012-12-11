@@ -36,16 +36,19 @@ using namespace std;
 #include <GL/glut.h>
 #endif
 
+hand Hand = hand();
+
+
 int show_guitar = 1;
-int axes   = 0;     //  Display axes
-int pMode  = 1;     //  Projection mode
-int move   = 1;     //  Move light
-int th     = 0;     //  Azimuth of view angle
-int ph     = 0;     //  Elevation of view angle
-int fov    = 55;    //  Field of view (for perspective)
-int light  = 1;     //  Lighting
-double asp = 1;     //  Aspect ratio
-double dim = 3.0;   //  Size of world
+int axes        = 0;     //  Display axes
+int pMode       = 1;     //  Projection mode
+int move        = 1;     //  Move light
+int th          = 0;     //  Azimuth of view angle
+int ph          = 0;     //  Elevation of view angle
+int fov         = 55;    //  Field of view (for perspective)
+int light       = 1;     //  Lighting
+double asp      = 1;     //  Aspect ratio
+double dim      = 3.0;   //  Size of world
 
 
 // Light values
@@ -69,7 +72,7 @@ float ambientvec[3];
 float diffuseVec[3];
 float specularvec[3];
 
-const char* default_song = "Data/testdata.xml";
+const char* default_song = "Data/onoffTest.xml";
 // Guitar measurement values
 const double neck_length         = 5;
 const double neck_r              = .3;
@@ -108,7 +111,7 @@ const double indexLen[3] ={0.35, 0.20, 0.16};
 const double middleLen[3] ={0.39, 0.27, 0.16};
 const double ringLen[3] ={0.40, 0.22, 0.21};
 const double pinkyLen[3] ={0.31, 0.17, 0.17};
-const double thumbLen[2] ={0.28, 0.28};
+const double thumbLen[3] ={0.29, 0.30, 0.30};
 // Texture values
 unsigned int texture[6];  //  Texture names
 int tMode=0;
@@ -119,7 +122,9 @@ int rep=1;        //  Repitition
 #define Cos(th) cos(3.1415926/180*(th))
 #define Sin(th) sin(3.1415926/180*(th))
 
+note prev_note;
 queue< note > notes;
+
 
 void stageFloor(double y)
 {
@@ -296,7 +301,9 @@ void display()
 	if (show_guitar)
 		guitar( 0,0,0, 1,0,0, 0,1,0);
 	// stageFloor(-2);
-	hand( notes.front() );
+
+	//  Elapsed time in seconds
+	Hand.setHand( notes.front(), prev_note, glutGet(GLUT_ELAPSED_TIME) );
 	// Move to next note, and put current note at end of queue
 	// notes.push(notes.front());
 	// notes.pop();
@@ -488,7 +495,17 @@ bool Init(int argc,char* argv[]){
 	char q[50];
 	sprintf( q, (char *)"SELECT * FROM notes WHERE song='%s';", songname);
 	vector<vector<string> > result = db->query( q );
+
 	// Fill the notes vector with note structs
+	note blank_n; // Begin with blank note
+	blank_n.note_num  = -1;
+	blank_n.duration  = 100;
+	blank_n.fret      = 0;
+	blank_n.string    = 0;
+	blank_n.fingering = 0;
+	blank_n.step      = (char*)"N";
+	prev_note         = blank_n;
+
 	note n;
 	for(vector<vector<string> >::iterator it = result.begin(); it < result.end(); ++it)
 	{

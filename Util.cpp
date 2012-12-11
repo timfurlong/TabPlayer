@@ -225,6 +225,19 @@ void drawAxes()
 	}
 }
 
+void vectorAssignPt(vector<double>& v, double x, double y, double z)
+{
+	if (v.size() != 3){
+		v.clear();
+		v.push_back( x );
+		v.push_back( y );
+		v.push_back( z );
+	}
+	else{
+		v[0]=x; v[1]=y; v[2]=z;
+	}
+}
+
 bool contains( int num, int array[], int arraySize)
 {
 	for (int i=0;i< arraySize;i++){
