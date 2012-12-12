@@ -132,6 +132,7 @@ private:
 	vector< vector<double> > baseVerts;
 
 	vector<finger> prevFingers;
+	vector<double> prevWrist;
 	// Timing
 	double t_elapsed;
 	int prev_fingnum;

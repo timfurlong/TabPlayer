@@ -35,7 +35,7 @@ guitar.a: guitar.o
 	ar -rcs guitar.a $^
 
 #  Create archive (include glWindowPos here if you need it)
-CSCIx229.a:fatal.o loadtexbmp.o print.o project.o errcheck.o object.o
+CSCIx229.a:CSCIx229/fatal.o CSCIx229/loadtexbmp.o CSCIx229/print.o CSCIx229/project.o CSCIx229/errcheck.o CSCIx229/object.o
 	ar -rcs CSCIx229.a $^
 
 Util.a: Util.o

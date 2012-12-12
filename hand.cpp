@@ -7,11 +7,12 @@ hand::hand( ){
 
 void hand::setHand( note n, note prev_n, double t )
 {
+	this->prevFingers = fingers;
+	this->prevWrist   = wrist;
 	this->wrist.clear();
 	this->fingBases.clear();
 	this->baseVerts.clear();
 	this->prev_fingnum = prev_n.fingering;
-	this->prevFingers = fingers;
 	vector<double> pt;
 	double x = get_wrist_x(n);
 	theta = get_wrist_theta(n);
@@ -46,6 +47,7 @@ void hand::setHand( note n, note prev_n, double t )
 	get_finger_pts( n, fingers[4], wrist_pt );
 	if (firstRun==1){
 		this->prevFingers = fingers;
+		this->prevWrist = this->wrist;
 		firstRun = 0;
 	}
 	// get max and min FingBaseLen
@@ -151,88 +153,7 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 	}
 }
 
-vector< vector<double> > hand::get_prev_fVerts( note n, finger f, vector<double> wrist_pt)
-{
-	const double fret_dist = 0.3;
-	double x, y, z, th;
-	vector<double> j, last_j, pt; // Vectors for filling with joint's XYZ
-	j.assign(3, 0); // Initialize blank
-	if (prev_fingnum == n.fingering && n.fret != 0)
-	{
-		double fret_diff;
-		if (n.fret == 1)
-			fret_diff = fret_position[0];
-		else
-			fret_diff = fret_position[n.fret-1]-fret_position[n.fret-2];
-		// lowest n.string is 1, not 0. This is just MusicXML standard
-		x = fret_position[ n.fret-1 ]- (fret_diff * fret_dist);
-		x *= neck_length;
-		x -= neck_length/2;
-		y = str_y[ n.string - 1];
-		z = fretboard_thickness + str_fret_dist;
-		vectorAssignPt(f.tip, x, y, z);
 
-		f.joints.clear();
-		j[0] = x; // TODO: angle this towards the wrist
-		j[1] = y - (f.boneLen.back()/sqrt(2));
-		j[2] = (f.boneLen.back()/sqrt(2)) + z;
-		f.joints.insert( f.joints.begin(), j );
-		last_j = j;
-
-		bool anotherJoint;
-		if (f.numJoints < 2)
-			anotherJoint = false;
-		else
-			anotherJoint = true;
-		if (anotherJoint == true){
-			th = degrees( atan( (last_j[1]-f.base[1]) / (last_j[0]-f.base[0]) ) );
-			j[0] = last_j[0] - f.boneLen[1] * Cos(th);
-			j[1] = last_j[1] - f.boneLen[1] * Sin(th);
-			j[2] = last_j[2];
-			f.joints.insert( f.joints.begin(), j );
-		}
-
-	}
-	else
-	{
-		double dx, dy, dz; // Vector from wrist to base
-		double fingLen; // Total length of finger
-		vector<double> currentJoint;
-		fingLen = f.boneLen[0] + f.boneLen[1] + f.boneLen[2];
-
-		dx = f.base[0] - wrist_pt[0];
-		dy = f.base[1] - wrist_pt[1];
-		dz = f.base[2] - wrist_pt[2];
-
-		x = dx * fingLen/baseLen[0] + f.base[0];
-		y = dy * fingLen/baseLen[1] + f.base[1];
-		z = dz * fingLen/baseLen[2] + f.base[2];
-		vectorAssignPt(f.tip, x, y, z);
-
-		currentJoint = f.base;
-		vector< vector<double> > joints;
-		for (int i=0; i<f.numJoints; i++){
-			j[0] = dx * f.boneLen[i]/baseLen[0] + currentJoint[0];
-			j[1] = dy * f.boneLen[i]/baseLen[1] + currentJoint[1];
-			j[2] = dz * f.boneLen[i]/baseLen[2] + currentJoint[2];
-			joints.push_back( j );
-			currentJoint = j;
-		}
-		f.joints = joints;
-	}
-
-	f.fVerts.clear();
-	f.fVerts.push_back(f.base);
-	for (int i=0; i<f.joints.size(); i++){
-		f.fVerts.push_back(f.joints[i]);
-	}
-	f.fVerts.push_back(f.tip);
-	vector< vector<double> >::iterator i;
-	for ( i=f.fVerts.begin(); i<f.fVerts.end(); i++){
-		vector<double> pt = *i;
-	}
-	return f.fVerts;
-}
 
 /*
  *  Draw the hand
@@ -252,21 +173,7 @@ void hand::drawHand( note n, note prev_n, double t )
 	vector< vector< vector<double> > >::iterator f_it;
 
 	// Get current position of all fingers at this time
-	// vector<finger> currentFingers;
 
-	// vector<finger>::iterator it;
-	// for (it=prevFingers.begin();it<prevFingers.end();it++){
-	// 	f = *it;
-	// 	for (v_it=f.fVerts.begin();v_it<f.fVerts.end();v_it++){
-	// 		pt = *v_it;
-	// 		prev_verts.push_back( pt );
-	// 		pt.clear();
-	// 	}
-	// }
-	// for (int i=0; i<fingers.size(); i++){
-	// 	for (int j=0; j<next_verts.size(); j++){
-
-	// prev_verts = prevFingers[i].fVerts;
 	pt.assign(3,0);
 	prev_verts.clear();
 	verts.clear();
@@ -286,45 +193,6 @@ void hand::drawHand( note n, note prev_n, double t )
 		fingVerts.push_back(verts);
 		verts.clear();
 	}
-	// glPointSize(20);
-	// glBegin(GL_POINTS);
-
-	// 		for (j_it=prev_verts.begin();j_it<prev_verts.begin()+1;j_it++){
-	// 			prev_pt = *j_it;
-	// 		}
-	// 		next_pt = next_verts[j];
-	// 		// printf("%2.2f = > %2.2f, %2.2f, %2.2f\n", t_elapsed, prev_pt[0],prev_pt[1],prev_pt[2]);
-
-	// 		// printf("%f, %f, %f\n",prev_pt[0],prev_pt[1],prev_pt[2] );
-	// 		// printf("%f, %f, %f\n\n",next_pt[0],next_pt[1],next_pt[2] );
-	// 		pt[0] = next_pt[0]*t + (1-t)*prev_pt[0];
-	// 		pt[1] = next_pt[1]*t + (1-t)*prev_pt[1];
-	// 		pt[2] = next_pt[2]*t + (1-t)*prev_pt[2];
-
-	// 		verts.push_back( pt );
-	// 		pt.assign(3,0);
-	// 	}
-	// 	// fingVerts.push_back(verts);
-	// 	fingVerts.push_back(next_verts);
-	// 	glPointSize(20);
-	// 	glBegin(GL_POINTS);
-	// 		glColor3f(1,0,0);
-	// 		for (v_it=next_verts.begin();v_it<next_verts.end()-1;v_it++){
-	// 			pt = *v_it;
-	// 			glVertex3d(pt[0],pt[1],pt[2]);
-
-	// 		}
-	// 		glColor3f(1,1,1);
-	// 		for (v_it=prev_verts.begin();v_it<prev_verts.end()-1;v_it++){
-	// 			pt = *v_it;
-	// 			glVertex3d(pt[0],pt[1],pt[2]);
-
-	// 		}
-	// 	glEnd();
-
-	// 	verts.clear();
-	// }
-
 
 	// Begin drawing  =================================
 
@@ -332,7 +200,7 @@ void hand::drawHand( note n, note prev_n, double t )
 	glPushMatrix();
 		vector<double> wrist_pt; wrist_pt.assign(3, 0);
 		wrist_pt[0]=0; wrist_pt[1]=0; wrist_pt[2]=-(neck_r+buffHelp+baseH);
-		glTranslated(this->wrist[0]*t,0,0);
+		glTranslated(this->wrist[0]*t+prevWrist[0]*(1-t),0,0);
 		glRotated(-90, 0,0,1);
 		glRotated(theta, 0,1,0);
 		draw_axes(1,1,1);
@@ -437,7 +305,11 @@ double hand::get_finger_x( int fret_num )
 
 double hand::get_wrist_x( note n )
 {
-	double x = get_fret_x( n.fret );
+	double x;
+	if (n.fret!=0)
+		x = get_fret_x( n.fret );
+	else
+		x = prevWrist[0];
 	x -= Cos(fingerTh[n.fingering-1]) * baseLen[n.fingering-1];
 	return x;
 }
