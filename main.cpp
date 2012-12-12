@@ -76,6 +76,7 @@ float specularvec[3];
 
 const char* default_song = "Data/onoffTest.xml";
 const int speedScale = 5;
+int firstRun = 1;
 int pause_playback = 0;
 const int timerMax = 2;
 int timer = timerMax;

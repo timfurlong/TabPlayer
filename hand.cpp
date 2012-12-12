@@ -11,6 +11,7 @@ void hand::setHand( note n, note prev_n, double t )
 	this->fingBases.clear();
 	this->baseVerts.clear();
 	this->prev_fingnum = prev_n.fingering;
+	this->prevFingers = fingers;
 	vector<double> pt;
 	double x = get_wrist_x(n);
 	theta = get_wrist_theta(n);
@@ -43,7 +44,10 @@ void hand::setHand( note n, note prev_n, double t )
 	get_finger_pts( n, fingers[2], wrist_pt );
 	get_finger_pts( n, fingers[3], wrist_pt );
 	get_finger_pts( n, fingers[4], wrist_pt );
-
+	if (firstRun==1){
+		this->prevFingers = fingers;
+		firstRun = 0;
+	}
 	// get max and min FingBaseLen
 	double maxLen = 0;
 	double minLen = 0;
@@ -250,94 +254,122 @@ void hand::drawHand( note n, note prev_n, double t )
 	// Get current position of all fingers at this time
 	// vector<finger> currentFingers;
 
+	// vector<finger>::iterator it;
+	// for (it=prevFingers.begin();it<prevFingers.end();it++){
+	// 	f = *it;
+	// 	for (v_it=f.fVerts.begin();v_it<f.fVerts.end();v_it++){
+	// 		pt = *v_it;
+	// 		prev_verts.push_back( pt );
+	// 		pt.clear();
+	// 	}
+	// }
+	// for (int i=0; i<fingers.size(); i++){
+	// 	for (int j=0; j<next_verts.size(); j++){
+
+	// prev_verts = prevFingers[i].fVerts;
 	pt.assign(3,0);
+	prev_verts.clear();
+	verts.clear();
+	fingVerts.clear();
 	for (int i=0; i<fingers.size(); i++){
 		next_verts  = fingers[i].fVerts;
-		prev_verts = get_prev_fVerts(prev_n, fingers[i], wrist);
+		prev_verts = this->prevFingers[i].fVerts;
 		for (int j=0; j<next_verts.size(); j++){
-			for (j_it=prev_verts.begin();j_it<prev_verts.begin()+1;j_it++){
-				prev_pt = *j_it;
-			}
+			prev_pt = prev_verts[j];
 			next_pt = next_verts[j];
-			// printf("%2.2f = > %2.2f, %2.2f, %2.2f\n", t_elapsed, prev_pt[0],prev_pt[1],prev_pt[2]);
-
-			// printf("%f, %f, %f\n",prev_pt[0],prev_pt[1],prev_pt[2] );
-			// printf("%f, %f, %f\n\n",next_pt[0],next_pt[1],next_pt[2] );
 			pt[0] = next_pt[0]*t + (1-t)*prev_pt[0];
 			pt[1] = next_pt[1]*t + (1-t)*prev_pt[1];
 			pt[2] = next_pt[2]*t + (1-t)*prev_pt[2];
-
-			verts.push_back( pt );
+			verts.push_back(pt);
 			pt.assign(3,0);
 		}
-		// fingVerts.push_back(verts);
-		fingVerts.push_back(next_verts);
-		glPointSize(20);
-
-
-		glBegin(GL_POINTS);
-			glColor3f(1,0,0);
-			for (v_it=next_verts.begin();v_it<next_verts.end()-1;v_it++){
-				pt = *v_it;
-				glVertex3d(pt[0],pt[1],pt[2]);
-
-			}
-			glColor3f(1,1,1);
-			for (v_it=prev_verts.begin();v_it<prev_verts.end()-1;v_it++){
-				pt = *v_it;
-				glVertex3d(pt[0],pt[1],pt[2]);
-
-			}
-		glEnd();
-
+		fingVerts.push_back(verts);
 		verts.clear();
 	}
+	// glPointSize(20);
+	// glBegin(GL_POINTS);
+
+	// 		for (j_it=prev_verts.begin();j_it<prev_verts.begin()+1;j_it++){
+	// 			prev_pt = *j_it;
+	// 		}
+	// 		next_pt = next_verts[j];
+	// 		// printf("%2.2f = > %2.2f, %2.2f, %2.2f\n", t_elapsed, prev_pt[0],prev_pt[1],prev_pt[2]);
+
+	// 		// printf("%f, %f, %f\n",prev_pt[0],prev_pt[1],prev_pt[2] );
+	// 		// printf("%f, %f, %f\n\n",next_pt[0],next_pt[1],next_pt[2] );
+	// 		pt[0] = next_pt[0]*t + (1-t)*prev_pt[0];
+	// 		pt[1] = next_pt[1]*t + (1-t)*prev_pt[1];
+	// 		pt[2] = next_pt[2]*t + (1-t)*prev_pt[2];
+
+	// 		verts.push_back( pt );
+	// 		pt.assign(3,0);
+	// 	}
+	// 	// fingVerts.push_back(verts);
+	// 	fingVerts.push_back(next_verts);
+	// 	glPointSize(20);
+	// 	glBegin(GL_POINTS);
+	// 		glColor3f(1,0,0);
+	// 		for (v_it=next_verts.begin();v_it<next_verts.end()-1;v_it++){
+	// 			pt = *v_it;
+	// 			glVertex3d(pt[0],pt[1],pt[2]);
+
+	// 		}
+	// 		glColor3f(1,1,1);
+	// 		for (v_it=prev_verts.begin();v_it<prev_verts.end()-1;v_it++){
+	// 			pt = *v_it;
+	// 			glVertex3d(pt[0],pt[1],pt[2]);
+
+	// 		}
+	// 	glEnd();
+
+	// 	verts.clear();
+	// }
 
 
 	// Begin drawing  =================================
 
 	// DRAW WRIST (aka base)
-	// glPushMatrix();
-	// 	vector<double> wrist_pt; wrist_pt.assign(3, 0);
-	// 	wrist_pt[0]=0; wrist_pt[1]=0; wrist_pt[2]=-(neck_r+buffHelp+baseH);
-	// 	glTranslated(this->wrist[0],0,0);
-	// 	glRotated(-90, 0,0,1);
-	// 	glRotated(theta, 0,1,0);
-	// 	draw_axes(1,1,1);
-	// 	glColor3ub(hRGB[0],hRGB[1],hRGB[2]);
+	glPushMatrix();
+		vector<double> wrist_pt; wrist_pt.assign(3, 0);
+		wrist_pt[0]=0; wrist_pt[1]=0; wrist_pt[2]=-(neck_r+buffHelp+baseH);
+		glTranslated(this->wrist[0]*t,0,0);
+		glRotated(-90, 0,0,1);
+		glRotated(theta, 0,1,0);
+		draw_axes(1,1,1);
+		glColor3ub(hRGB[0],hRGB[1],hRGB[2]);
 
-	// 	glTranslated(0,0,baseH);
-	// 	glBegin( GL_POLYGON );
-	// 		glVertex3d(wrist_pt[0],wrist_pt[1],wrist_pt[2]);
-	// 		Vertex(  fingerTh[4]-thHelp, 0, baseLen[4],
-	// 					0,0,-(neck_r+buffHelp+baseH) );
-	// 		for (int i=0; i<4; i++){
-	// 			Vertex(  fingerTh[i], 0, baseLen[i],
-	// 						0,0,-(neck_r+buffHelp+baseH) );
-	// 		}
-	// 	glEnd();
-	// 	glTranslated(0,0,-2*baseH);
-	// 	glBegin( GL_POLYGON );
-	// 		glVertex3d(wrist_pt[0],wrist_pt[1],wrist_pt[2]);
-	// 		Vertex(  fingerTh[4]-thHelp, 0, baseLen[4],
-	// 					0,0,-(neck_r+buffHelp+baseH) );
-	// 		for (int i=0; i<4; i++){
-	// 			Vertex(  fingerTh[i], 0, baseLen[i],
-	// 						0,0,-(neck_r+buffHelp+baseH) );
-	// 		}
-	// 	glEnd();
+		glTranslated(0,0,baseH);
+		glBegin( GL_POLYGON );
+			glVertex3d(wrist_pt[0],wrist_pt[1],wrist_pt[2]);
+			Vertex(  fingerTh[4]-thHelp, 0, baseLen[4],
+						0,0,-(neck_r+buffHelp+baseH) );
+			for (int i=0; i<4; i++){
+				Vertex(  fingerTh[i], 0, baseLen[i],
+							0,0,-(neck_r+buffHelp+baseH) );
+			}
+		glEnd();
+		glTranslated(0,0,-2*baseH);
+		glBegin( GL_POLYGON );
+			glVertex3d(wrist_pt[0],wrist_pt[1],wrist_pt[2]);
+			Vertex(  fingerTh[4]-thHelp, 0, baseLen[4],
+						0,0,-(neck_r+buffHelp+baseH) );
+			for (int i=0; i<4; i++){
+				Vertex(  fingerTh[i], 0, baseLen[i],
+							0,0,-(neck_r+buffHelp+baseH) );
+			}
+		glEnd();
 
-	// 	glBegin( GL_QUAD_STRIP );
-	// 		for (int i=0; i<baseVerts.size(); i++){
-	// 			pt = baseVerts[i];
-	// 			glVertex3d( pt[0],pt[1],pt[2]);
-	// 			glVertex3d( pt[0],pt[1],pt[2]+2*baseH);
-	// 		}
-	// 		pt = baseVerts[0];
-	// 		glVertex3d( pt[0],pt[1],pt[2]);
-	// 		glVertex3d( pt[0],pt[1],pt[2]+2*baseH);
-	// 	glEnd();
-	// glPopMatrix();
+		glBegin( GL_QUAD_STRIP );
+			for (int i=0; i<baseVerts.size(); i++){
+				pt = baseVerts[i];
+				glVertex3d( pt[0],pt[1],pt[2]);
+				glVertex3d( pt[0],pt[1],pt[2]+2*baseH);
+			}
+			pt = baseVerts[0];
+			glVertex3d( pt[0],pt[1],pt[2]);
+			glVertex3d( pt[0],pt[1],pt[2]+2*baseH);
+		glEnd();
+	glPopMatrix();
 
 	// DRAW FINGERS
 	glColor3ub( hRGB[0], hRGB[1], hRGB[2] );

@@ -41,6 +41,7 @@ extern queue<note> notes;
 extern double str_y[6];
 extern const double str_fret_dist;
 extern const int speedScale;
+extern int firstRun;
 
 const double buffHelp = 0.000000001;
 // Base parameters
@@ -56,7 +57,6 @@ const double baseLen[5] = {1.17, 1.11, 1.02, 0.97, 0.69};
 const double baseH      = 0.1;
 const double thHelp     = 4;
 #define PI 3.1415927
-
 class finger
 {
 public:
