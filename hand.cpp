@@ -92,8 +92,6 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		j[0] = x; // TODO: angle this towards the wrist
 		j[1] = y - (f.boneLen.back()/sqrt(2));
 		j[2] = (f.boneLen.back()/sqrt(2)) + z;
-		printf("%2.2f, %2.2f, %2.2f\n",j[0],j[1],j[2] );
-		printf("\n\n");
 		f.joints.insert( f.joints.begin(), j );
 		last_j = j;
 
@@ -104,7 +102,6 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		j[1] = last_j[1] - f.boneLen[1] * Sin(th);
 		j[2] = last_j[2];
 		f.joints.insert( f.joints.begin(), j );
-
 
 	}
 	else

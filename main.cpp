@@ -74,7 +74,7 @@ float ambientvec[3];
 float diffuseVec[3];
 float specularvec[3];
 
-const char* default_song = "Data/onoffTest.xml";
+const char* default_song = "Data/testdata.xml";
 const int speedScale = 5;
 int firstRun = 1;
 int pause_playback = 0;
@@ -205,7 +205,6 @@ void display()
 		float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
 		//  Light position
 
-		// double Position[] = {distance*Cos(zh),ylight,distance*Sin(zh),1.0};
 		if (moveLightVert == 1)
 			{
 				Position[0] = ylight;
@@ -242,7 +241,6 @@ void display()
 		glLightfv(GL_LIGHT0,GL_POSITION,Position);
 	}
 	else
-	  // glDisable(GL_LIGHTING);
 	{
 		//  Translate intensity to color vectors
 		float Ambient[]       = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
@@ -282,50 +280,26 @@ void display()
 		glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 20); // exponent is 0 to 128
 		glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.5);
 
-		// glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2.0);
-		// glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.0);
-		// glLightModelf( GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
-		// glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Ambient);
-		// glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spotDirection);
-
 	}
-
-	//    ||* * * * * * * * * ********************************
-	//    || * * * * * * * *  ********************************
-	//    ||* * * * * * * * * ********************************
-	//    || * * * * * * * *  ********************************
-	//    ||* * * * * * * * * ********************************
-	//    || * * * * * * * *  ********************************
-	//    ||**************************************************
-	//    ||**************************************************
-	//    ||**************************************************
-	//    ||**************************************************
-	//    ||**************************************************
-	//    ||**************************************************
-	//    ||**************************************************
-	//    ||
-	//    ||
-	//    ||
 
 	if (show_guitar)
 		guitar( 0,0,0, 1,0,0, 0,1,0);
-	// stageFloor(-2);
+	stageFloor(-2);
 
 	note n = notes.front();
-
-	if (t==0)
+	if (firstRun==1)
 		Hand.setHand( n, prev_note, t );
 	if (pause_playback == 0){
 		for (int i=0;i<speedScale;i++){
 			ticks++;
 			t = (double) ((ticks)%n.duration)/n.duration;
-			if (t==0)
+			if (t==0){
+				Hand.setHand( n, prev_note, t );
 				break;
+			}
 		}
 	}
-	// printf("%f\n", t);
-	// if (pause_playback==0)
-		Hand.drawHand( n, prev_note , t);
+	Hand.drawHand( n, prev_note , t);
 	if (t==0){
 		prev_note = notes.front();
 		// Move to next note, and put current note at end of queue
@@ -518,7 +492,6 @@ bool Init(int argc,char* argv[]){
 	char q[50];
 	sprintf( q, (char *)"SELECT * FROM notes WHERE song='%s';", songname);
 	vector<vector<string> > result = db->query( q );
-
 	// Fill the notes vector with note structs
 	note blank_n; // Begin with blank note
 	blank_n.note_num  = -1;
