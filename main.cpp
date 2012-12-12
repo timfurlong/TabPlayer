@@ -74,6 +74,9 @@ float ambientvec[3];
 float diffuseVec[3];
 float specularvec[3];
 
+const int dimAmbiant        = 20;
+const float dimAmbientVec[] = {0.01*dimAmbiant ,0.01*dimAmbiant ,0.01*dimAmbiant ,1.0};
+const float dimDiffuseVec[]   = {0.01*10 ,0.01*10 ,0.01*10 ,1.0};
 const char* default_song = "Data/testdata.xml";
 const int speedScale = 5;
 int firstRun = 1;
@@ -196,91 +199,60 @@ void display()
 	//  Flat or smooth shading
 	glShadeModel(smooth ? GL_SMOOTH : GL_FLAT);
 
+
+	//  Translate intensity to color vectors
+	float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
+	float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
+	float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
+
 	//  Light switch
-	if (light)
-	{
-		//  Translate intensity to color vectors
-		float Ambient[]   = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
-		float Diffuse[]   = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
-		float Specular[]  = {0.01*specular,0.01*specular,0.01*specular,1.0};
-		//  Light position
+	if (light){
+		//  Light position moves
+		if (moveLightVert == 1){
+			Position[0] = ylight;
+			Position[1] = dist*Cos(zh);
+			Position[2] = dist*Sin(zh);
+			Position[3] = 1.0;
+		}
+		else{
+			Position[0] = dist*Cos(zh);
+			Position[1] = ylight;
+			Position[2] = dist*Sin(zh);
+			Position[3] = 1.0;
+		}
+	}
+	else{
+		Position[0] = -1;
+		Position[1] = 1;
+		Position[2] = 5;
+	}
 
-		if (moveLightVert == 1)
-			{
-				Position[0] = ylight;
-				Position[1] = dist*Cos(zh);
-				Position[2] = dist*Sin(zh);
-				Position[3] = 1.0;
-			}
-		else
-			{
-				Position[0] = dist*Cos(zh);
-				Position[1] = ylight;
-				Position[2] = dist*Sin(zh);
-				Position[3] = 1.0;
-			}
-
-		//  Draw light position as ball (still no lighting here)
-		glColor3f(1,1,1);
-		ball(Position[0],Position[1],Position[2] , 0.1);
-		//  OpenGL should normalize normal vectors
-		glEnable(GL_NORMALIZE);
-		//  Enable lighting
-		glEnable(GL_LIGHTING);
-		//  Location of viewer for specular calculations
-		glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-		//  glColor sets ambient and diffuse color materials
-		glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-		glEnable(GL_COLOR_MATERIAL);
-		//  Enable light 0®
-		glEnable(GL_LIGHT0);
-		//  Set ambient, diffuse, specular components and position of light 0
+	//  Draw light position as ball (still no lighting here)
+	glColor3f(1,1,1);
+	ball(Position[0],Position[1],Position[2] , 0.1);
+	//  OpenGL should normalize normal vectors
+	glEnable(GL_NORMALIZE);
+	//  Enable lighting
+	glEnable(GL_LIGHTING);
+	//  Location of viewer for specular calculations
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
+	//  glColor sets ambient and diffuse color materials
+	glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+	glEnable(GL_COLOR_MATERIAL);
+	//  Enable light 0®
+	glEnable(GL_LIGHT0);
+	//  Set ambient, diffuse, specular components and position of light 0
+	if (light){
 		glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
 		glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-		glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-		glLightfv(GL_LIGHT0,GL_POSITION,Position);
 	}
-	else
-	{
-		//  Translate intensity to color vectors
-		float Ambient[]       = {0.01*ambient ,0.01*ambient ,0.01*ambient ,1.0};
-		float Diffuse[]       = {0.01*diffuse ,0.01*diffuse ,0.01*diffuse ,1.0};
-		float Specular[]      = {0.01*specular,0.01*specular,0.01*specular,1.0};
-		float spotPosition[3] = {0,3,3};
-		spotPosition[0] = 0;
-		spotPosition[1] = 3;
-		spotPosition[2] = 3;
-		float spotDirection[4];
-		for (int i=0; i<3; i++)
-			spotDirection[i] = -spotPosition[i];
-		spotDirection[3] = 0;
-
-		//  Draw light position as ball (still no lighting here)
-		glColor3f(1,1,1);
-		ball(spotPosition[0],spotPosition[1],spotPosition[2] , 0.1);
-		//  OpenGL should normalize normal vectors
-		glEnable(GL_NORMALIZE);
-		//  Enable lighting
-		glEnable(GL_LIGHTING);
-		//  Location of viewer for specular calculations
-		glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,local);
-		//  glColor sets ambient and diffuse color materials
-		glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-		glEnable(GL_COLOR_MATERIAL);
-		//  Enable light 0®
-		glEnable(GL_LIGHT0);
-		//  Set ambient, diffuse, specular components and position of light 0
-		glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-		glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-		glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
-
-		glLightfv(GL_LIGHT0, GL_POSITION, spotPosition );
-		glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spotDirection );
-		glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 10); // angle is 0 to 180
-		glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 20); // exponent is 0 to 128
-		glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.5);
-
+	else{
+		glLightfv(GL_LIGHT0,GL_AMBIENT ,dimAmbientVec);
+		glLightfv(GL_LIGHT0,GL_AMBIENT ,dimDiffuseVec);
 	}
+	glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
+	glLightfv(GL_LIGHT0,GL_POSITION,Position);
+
 
 	if (show_guitar)
 		guitar( 0,0,0, 1,0,0, 0,1,0);
@@ -316,14 +288,6 @@ void display()
 	//  Print the text string
 	Print("Angle=%d,%d  Dim=%.1f FOV=%d Projection=%s Light=%s, ",
 	  th,ph,dim,fov,pMode?"Perpective":"Orthogonal",light?"On":"Off");
-
-	if (light)
-	{
-		glWindowPos2i(5,45);
-		Print("Model=%s LocalViewer=%s Distance=%d Elevation=%.1f",smooth?"Smooth":"Flat",local?"On":"Off",dist,ylight);
-		glWindowPos2i(5,25);
-		Print("Ambient=%d  Diffuse=%d Specular=%d Emission=%d Shininess=%.0f",shinyvec[0]);
-	}
 
 	// Check for errors
 	ErrCheck("display");
