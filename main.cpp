@@ -73,6 +73,7 @@ float diffuseVec[3];
 float specularvec[3];
 
 const char* default_song = "Data/onoffTest.xml";
+const int speedScale = 10;
 // Guitar measurement values
 const double neck_length         = 5;
 const double neck_r              = .3;
@@ -107,6 +108,7 @@ double str_y[6];
 
 // Hand variables/values
 vector< finger > fingers;
+vector<finger> prev_fingers;
 const double indexLen[3] ={0.35, 0.20, 0.16};
 const double middleLen[3] ={0.39, 0.27, 0.16};
 const double ringLen[3] ={0.40, 0.22, 0.21};
@@ -124,6 +126,8 @@ int rep=1;        //  Repitition
 
 note prev_note;
 queue< note > notes;
+
+
 
 
 void stageFloor(double y)
@@ -305,8 +309,8 @@ void display()
 	//  Elapsed time in seconds
 	Hand.setHand( notes.front(), prev_note, glutGet(GLUT_ELAPSED_TIME) );
 	// Move to next note, and put current note at end of queue
-	// notes.push(notes.front());
-	// notes.pop();
+	notes.push(notes.front());
+	notes.pop();
 
 	//  Draw axes
 	glDisable(GL_LIGHTING);
@@ -531,6 +535,7 @@ bool Init(int argc,char* argv[]){
 	fingers.push_back( finger(ringLen, 3, 3) );
 	fingers.push_back( finger(pinkyLen, 3, 4) );
 	fingers.push_back( finger(thumbLen, 2, 5) );
+	prev_fingers = fingers;
 	return true;
 }
 /*

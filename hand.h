@@ -40,6 +40,7 @@ extern int axes;
 extern queue<note> notes;
 extern double str_y[6];
 extern const double str_fret_dist;
+extern const int speedScale;
 
 const double buffHelp = 0.000000001;
 // Base parameters
@@ -80,25 +81,30 @@ public:
 	// Joints
 	vector< vector<double> > joints;
 	int numJoints;
-	// All relevant finger verticies: {base, joint 1, joint 2(, joint 3), tip}
-	vector< vector<double> > fVerts;
+
 	vector<double> boneLen;
 	int numBones;
 	int fingNum;
+
+	// All relevant finger verticies: {base, joint 1, joint 2(, joint 3), tip}
+	vector< vector<double> > fVerts;
+	vector< vector<double> > relFVerts;
 
 private:
 
 
 };
 extern vector< finger > fingers;
+extern vector< finger > prev_fingers;
 
 class hand
 {
 public:
 	hand( );
 	void setHand( note n, note prev_n, double t );
-	void drawHand( note n, vector<finger> prev_fingers );
+	void drawHand( note n, vector<finger>& prev_fingers );
 
+	void drawLineHandBase();
 private:
 	// void finger(double th, double r_base,
 	// 			const double boneLen[], note n);

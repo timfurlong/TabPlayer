@@ -126,6 +126,28 @@ void Vertex(double th,double ph, double r,
 	glVertex3f(x,y,z);
 }
 
+double acot(double x)
+{
+	/*
+	 * Calculate inverse cotangent value.
+	 */
+	return atan(1 / x);
+}
+
+vector<double> GetPolarCoord(double x, double y, double z)
+{
+	// th =tan-1(z/(x^2+y^2)^1/2)
+	// ph = tan-1(y/x)
+	// r = (x^2 + y^2 + z^2)^1/2
+	vector<double> pt;
+
+	pt.push_back( degrees( atan2(  (pow(x,2) + pow(y,2)), z) ) ); //th
+	pt.push_back( degrees( atan2( x,y) ) ); // ph
+	pt.push_back( pow(x, 2)+pow(y, 2)+pow(z, 2) ); // r
+
+	return pt;
+}
+
 void setEye(){
 	//  Perspective - set eye position
 	if (pMode)

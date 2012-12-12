@@ -46,7 +46,7 @@ size_t SizeOfArray( T(&)[ N ] )
 {
 	return N;
 }
-
+double acot(double x);
 void getMatrix(double dx, double dy, double dz,
 								double ux, double uy, double uz,
 								double* mat);
@@ -74,6 +74,7 @@ vector<double> GetVertex(double th, double ph, double r,
 vector<double> getTranslateCoord(double x, double y, double z, vector<double> pt);
 vector<double> getRotateCoord(double th, int rx, int ry, int rz,
 										vector<double> pt);
+vector<double> GetPolarCoord(double x, double y, double z);
 
 void vectorAssignPt(vector<double>& v, double x, double y, double z);
 bool contains(int num, int array[], int arraySize);
