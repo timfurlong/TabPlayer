@@ -310,7 +310,7 @@ void display()
 	note n = notes.front();
 	double t = (double) ((int)(ticks*speedScale)%n.duration)/n.duration;
 	Hand.setHand( n, prev_note, t );
-	printf("%f\n", t);
+	// printf("%f\n", t);
 	if (t==0){
 		printf("Boom\n" );
 		// Move to next note, and put current note at end of queue
