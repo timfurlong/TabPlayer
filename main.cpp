@@ -37,7 +37,7 @@ using namespace std;
 #endif
 
 hand Hand = hand();
-int ticks = 0;
+double ticks = 0;
 int totalIterations = 0;
 double t = 0;
 
@@ -291,8 +291,8 @@ void display()
 		Hand.setHand( n, prev_note, t );
 	if (pause_playback == 0){
 		for (int i=0;i<speedScale;i++){
-			ticks++;
-			t = (double) ((ticks)%n.duration)/n.duration;
+			ticks+=sin( (PI/n.duration)*t );
+			t = (double) ((int)(ticks)%n.duration)/n.duration;
 			if (t==0){
 				Hand.setHand( n, prev_note, t );
 				break;
