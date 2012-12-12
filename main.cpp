@@ -120,7 +120,7 @@ const double ringLen[3] ={0.40, 0.22, 0.21};
 const double pinkyLen[3] ={0.31, 0.17, 0.17};
 const double thumbLen[3] ={0.29, 0.30, 0.30};
 // Texture values
-unsigned int texture[6];  //  Texture names
+unsigned int texture[7];  //  Texture names
 int tMode=0;
 int ntex=0;    //  Texture
 int rep=1;        //  Repitition
@@ -481,6 +481,7 @@ bool Init(int argc,char* argv[]){
 	texture[3] = LoadTexBMP("Data/carpet.bmp");
 	texture[4] = LoadTexBMP("Data/woodFlooring.bmp");
 	texture[5] = LoadTexBMP("Data/wound_strings.bmp");
+	texture[6] = LoadTexBMP("Data/metal.bmp");
 
 	// Get song
 	if (argc<2)
@@ -516,8 +517,6 @@ bool Init(int argc,char* argv[]){
 	   notes.push( n );
 	}
 	for(int i=0; i<notes.size(); i++){
-		note n = notes.front();
-		printf("%d, %s, %d\n", n.note_num, n.step, n.fret);
 		notes.push( notes.front() );
 		notes.pop();
 	}

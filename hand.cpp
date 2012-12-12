@@ -247,8 +247,6 @@ void hand::drawHand( note n, note prev_n, double t )
 		for (v_it = verts.begin(); v_it!=verts.end()-1; v_it++){
 			pt      = *v_it;
 			next_pt = *(v_it+1);
-			// printf("%f, %f, %f\n",pt[0],pt[1],pt[2] );
-			// printf("%f, %f, %f\n\n",next_pt[0],next_pt[1],next_pt[2] );
 			renderCylinder_convenient( pt[0],pt[1],pt[2],
 												next_pt[0],next_pt[1],next_pt[2],
 												fingRadius, fingSubDiv);
@@ -256,7 +254,18 @@ void hand::drawHand( note n, note prev_n, double t )
 	}
 
 
-	// // DRAW JOINTS
+
+	// DRAW JOINTS
+	for (f_it = fingVerts.begin(); f_it!=fingVerts.end(); f_it++){
+		verts = *f_it;
+		for (v_it = verts.begin(); v_it!=verts.end(); v_it++){
+			pt      = *v_it;
+			ball( pt[0],pt[1],pt[2],
+					jRGB[0],jRGB[1],jRGB[2],
+					jointRadius);
+		}
+	}
+
 	// for (int ii=0; ii<fingers.size(); ii++){
 	// 	fingers[ii];
 	// 	for (int jj=0; jj<f.joints.size(); jj++){
