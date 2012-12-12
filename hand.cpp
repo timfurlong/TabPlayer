@@ -118,8 +118,9 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		x = dx * fingLen/baseLen[0] + f.base[0];
 		y = dy * fingLen/baseLen[1] + f.base[1];
 		z = dz * fingLen/baseLen[2] + f.base[2];
-		vectorAssignPt(f.tip, x, y, z);
+		vectorAssignPt(f.tip, x,y,z);
 
+		currentJoint.clear();
 		currentJoint = f.base;
 		vector< vector<double> > joints;
 		for (int i=0; i<f.numJoints; i++){
@@ -170,7 +171,10 @@ void hand::drawHand( note n, note prev_n, double t )
 	vector< vector< vector<double> > >::iterator f_it;
 
 	// Get current position of all fingers at this time
-
+	if (t<0.1)
+		t = t/0.1;
+	else
+		t =1;
 	pt.assign(3,0);
 	prev_verts.clear();
 	verts.clear();

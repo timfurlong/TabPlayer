@@ -37,7 +37,7 @@ using namespace std;
 #endif
 
 hand Hand = hand();
-double ticks = 0;
+int ticks = 0;
 int totalIterations = 0;
 double t = 0;
 
@@ -287,12 +287,13 @@ void display()
 	stageFloor(-2);
 
 	note n = notes.front();
+	double t_increment = 10*sin( PI*(double)t );
 	if (firstRun==1)
 		Hand.setHand( n, prev_note, t );
 	if (pause_playback == 0){
 		for (int i=0;i<speedScale;i++){
-			ticks+=sin( (PI/n.duration)*t );
-			t = (double) ((int)(ticks)%n.duration)/n.duration;
+			ticks+= 1+t_increment;
+			t = (double) ((ticks)%n.duration)/n.duration;
 			if (t==0){
 				Hand.setHand( n, prev_note, t );
 				break;
