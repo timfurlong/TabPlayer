@@ -95,14 +95,13 @@ private:
 
 };
 extern vector< finger > fingers;
-extern vector< finger > prev_fingers;
 
 class hand
 {
 public:
 	hand( );
 	void setHand( note n, note prev_n, double t );
-	void drawHand( note n, vector<finger>& prev_fingers );
+	void drawHand( note n, note prev_n );
 
 	void drawLineHandBase();
 private:
@@ -118,6 +117,7 @@ private:
 	double get_wrist_theta( note n );
 
 	void get_finger_pts( note n, finger& f, vector<double> wrist_pt );
+	vector< vector<double> > get_prev_fVerts( note n, finger f, vector<double> wrist_pt);
 
 	void draw_axes( float r, float g, float b);
 

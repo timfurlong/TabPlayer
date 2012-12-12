@@ -37,7 +37,7 @@ using namespace std;
 #endif
 
 hand Hand = hand();
-
+int ticks = 0;
 
 int show_guitar = 1;
 int axes        = 0;     //  Display axes
@@ -108,7 +108,6 @@ double str_y[6];
 
 // Hand variables/values
 vector< finger > fingers;
-vector<finger> prev_fingers;
 const double indexLen[3] ={0.35, 0.20, 0.16};
 const double middleLen[3] ={0.39, 0.27, 0.16};
 const double ringLen[3] ={0.40, 0.22, 0.21};
@@ -181,6 +180,7 @@ void stageFloor(double y)
  */
 void display()
 {
+	ticks++;
 	//  Erase the window and the depth buffer
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -307,10 +307,16 @@ void display()
 	// stageFloor(-2);
 
 	//  Elapsed time in seconds
-	Hand.setHand( notes.front(), prev_note, glutGet(GLUT_ELAPSED_TIME) );
-	// Move to next note, and put current note at end of queue
-	notes.push(notes.front());
-	notes.pop();
+	note n = notes.front();
+	double t = (double) ((int)(ticks*speedScale)%n.duration)/n.duration;
+	Hand.setHand( n, prev_note, t );
+	printf("%f\n", t);
+	if (t==0){
+		printf("Boom\n" );
+		// Move to next note, and put current note at end of queue
+		notes.push(notes.front());
+		notes.pop();
+	}
 
 	//  Draw axes
 	glDisable(GL_LIGHTING);
@@ -535,7 +541,6 @@ bool Init(int argc,char* argv[]){
 	fingers.push_back( finger(ringLen, 3, 3) );
 	fingers.push_back( finger(pinkyLen, 3, 4) );
 	fingers.push_back( finger(thumbLen, 2, 5) );
-	prev_fingers = fingers;
 	return true;
 }
 /*
