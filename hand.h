@@ -101,7 +101,7 @@ class hand
 public:
 	hand( );
 	void setHand( note n, note prev_n, double t );
-	void drawHand( note n, note prev_n );
+	void drawHand( note n, note prev_n, double t );
 
 	void drawLineHandBase();
 private:
@@ -131,7 +131,9 @@ private:
 	double minBaseLen;
 	vector< vector<double> > baseVerts;
 
+	vector<finger> prevFingers;
 	// Timing
 	double t_elapsed;
+	int prev_fingnum;
 };
 

@@ -2,7 +2,7 @@
 
 
 hand::hand( ){
-
+	this->prev_fingnum = 0;
 }
 
 void hand::setHand( note n, note prev_n, double t )
@@ -10,7 +10,7 @@ void hand::setHand( note n, note prev_n, double t )
 	this->wrist.clear();
 	this->fingBases.clear();
 	this->baseVerts.clear();
-
+	this->prev_fingnum = prev_n.fingering;
 	vector<double> pt;
 	double x = get_wrist_x(n);
 	theta = get_wrist_theta(n);
@@ -58,7 +58,6 @@ void hand::setHand( note n, note prev_n, double t )
 
 	// Timing parameters
 	this->t_elapsed     = t;
-	this->drawHand( n, prev_n );
 }
 
 
@@ -83,9 +82,12 @@ void hand::get_finger_pts( note n, finger& f, vector<double> wrist_pt )
 		z = fretboard_thickness + str_fret_dist;
 		vectorAssignPt(f.tip, x, y, z);
 
+		f.joints.clear();
 		j[0] = x; // TODO: angle this towards the wrist
 		j[1] = y - (f.boneLen.back()/sqrt(2));
 		j[2] = (f.boneLen.back()/sqrt(2)) + z;
+		printf("%2.2f, %2.2f, %2.2f\n",j[0],j[1],j[2] );
+		printf("\n\n");
 		f.joints.insert( f.joints.begin(), j );
 		last_j = j;
 
@@ -151,7 +153,7 @@ vector< vector<double> > hand::get_prev_fVerts( note n, finger f, vector<double>
 	double x, y, z, th;
 	vector<double> j, last_j, pt; // Vectors for filling with joint's XYZ
 	j.assign(3, 0); // Initialize blank
-	if (f.fingNum == n.fingering && n.fret != 0)
+	if (prev_fingnum == n.fingering && n.fret != 0)
 	{
 		double fret_diff;
 		if (n.fret == 1)
@@ -166,6 +168,7 @@ vector< vector<double> > hand::get_prev_fVerts( note n, finger f, vector<double>
 		z = fretboard_thickness + str_fret_dist;
 		vectorAssignPt(f.tip, x, y, z);
 
+		f.joints.clear();
 		j[0] = x; // TODO: angle this towards the wrist
 		j[1] = y - (f.boneLen.back()/sqrt(2));
 		j[2] = (f.boneLen.back()/sqrt(2)) + z;
@@ -220,7 +223,10 @@ vector< vector<double> > hand::get_prev_fVerts( note n, finger f, vector<double>
 		f.fVerts.push_back(f.joints[i]);
 	}
 	f.fVerts.push_back(f.tip);
-
+	vector< vector<double> >::iterator i;
+	for ( i=f.fVerts.begin(); i<f.fVerts.end(); i++){
+		vector<double> pt = *i;
+	}
 	return f.fVerts;
 }
 
@@ -230,7 +236,7 @@ vector< vector<double> > hand::get_prev_fVerts( note n, finger f, vector<double>
  *     fingers facing (dx,dy,dz)
  *     up towards (ux,uy,uz)
  */
-void hand::drawHand( note n, note prev_n )
+void hand::drawHand( note n, note prev_n, double t )
 {
 
 	vector<double> pt, j, next_pt, prev_pt;
@@ -247,20 +253,43 @@ void hand::drawHand( note n, note prev_n )
 	pt.assign(3,0);
 	for (int i=0; i<fingers.size(); i++){
 		next_verts  = fingers[i].fVerts;
-		prev_verts = get_prev_fVerts(prev_n, f, wrist);
-		for (int i=0; i<next_verts.size(); i++){
-			for (j_it=prev_verts.begin();j_it<prev_verts.begin()+1;j_it++)
+		prev_verts = get_prev_fVerts(prev_n, fingers[i], wrist);
+		for (int j=0; j<next_verts.size(); j++){
+			for (j_it=prev_verts.begin();j_it<prev_verts.begin()+1;j_it++){
 				prev_pt = *j_it;
-			next_pt = next_verts[i];
+			}
+			next_pt = next_verts[j];
+			// printf("%2.2f = > %2.2f, %2.2f, %2.2f\n", t_elapsed, prev_pt[0],prev_pt[1],prev_pt[2]);
+
 			// printf("%f, %f, %f\n",prev_pt[0],prev_pt[1],prev_pt[2] );
 			// printf("%f, %f, %f\n\n",next_pt[0],next_pt[1],next_pt[2] );
-			pt[0] = next_pt[0]*t_elapsed + (1-t_elapsed)*prev_pt[0];
-			pt[1] = next_pt[1]*t_elapsed + (1-t_elapsed)*prev_pt[1];
-			pt[2] = next_pt[2]*t_elapsed + (1-t_elapsed)*prev_pt[2];
+			pt[0] = next_pt[0]*t + (1-t)*prev_pt[0];
+			pt[1] = next_pt[1]*t + (1-t)*prev_pt[1];
+			pt[2] = next_pt[2]*t + (1-t)*prev_pt[2];
+
 			verts.push_back( pt );
 			pt.assign(3,0);
 		}
-		fingVerts.push_back(verts);
+		// fingVerts.push_back(verts);
+		fingVerts.push_back(next_verts);
+		glPointSize(20);
+
+
+		glBegin(GL_POINTS);
+			glColor3f(1,0,0);
+			for (v_it=next_verts.begin();v_it<next_verts.end()-1;v_it++){
+				pt = *v_it;
+				glVertex3d(pt[0],pt[1],pt[2]);
+
+			}
+			glColor3f(1,1,1);
+			for (v_it=prev_verts.begin();v_it<prev_verts.end()-1;v_it++){
+				pt = *v_it;
+				glVertex3d(pt[0],pt[1],pt[2]);
+
+			}
+		glEnd();
+
 		verts.clear();
 	}
 
@@ -312,17 +341,6 @@ void hand::drawHand( note n, note prev_n )
 
 	// DRAW FINGERS
 	glColor3ub( hRGB[0], hRGB[1], hRGB[2] );
-	// old way
-		// for (int i=0; i<fingers.size(); i++){
-		// 	f = fingers[i];
-		// 	for (int j=0; j<f.fVerts.size()-1; j++){
-		// 		pt      = f.fVerts[j];
-		// 		next_pt = f.fVerts[j+1];
-		// 		renderCylinder_convenient( pt[0],pt[1],pt[2],
-		// 											next_pt[0],next_pt[1],next_pt[2],
-		// 											fingRadius, fingSubDiv);
-		// 	}
-		// }
 	for (f_it = fingVerts.begin(); f_it!=fingVerts.end(); f_it++){
 		verts = *f_it;
 		for (v_it = verts.begin(); v_it!=verts.end()-1; v_it++){

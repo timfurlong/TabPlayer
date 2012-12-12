@@ -38,6 +38,8 @@ using namespace std;
 
 hand Hand = hand();
 int ticks = 0;
+int totalIterations = 0;
+double t = 0;
 
 int show_guitar = 1;
 int axes        = 0;     //  Display axes
@@ -73,7 +75,10 @@ float diffuseVec[3];
 float specularvec[3];
 
 const char* default_song = "Data/onoffTest.xml";
-const int speedScale = 10;
+const int speedScale = 5;
+int pause_playback = 0;
+const int timerMax = 2;
+int timer = timerMax;
 // Guitar measurement values
 const double neck_length         = 5;
 const double neck_r              = .3;
@@ -180,7 +185,6 @@ void stageFloor(double y)
  */
 void display()
 {
-	ticks++;
 	//  Erase the window and the depth buffer
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
@@ -306,13 +310,23 @@ void display()
 		guitar( 0,0,0, 1,0,0, 0,1,0);
 	// stageFloor(-2);
 
-	//  Elapsed time in seconds
 	note n = notes.front();
-	double t = (double) ((int)(ticks*speedScale)%n.duration)/n.duration;
-	Hand.setHand( n, prev_note, t );
+
+	if (t==0)
+		Hand.setHand( n, prev_note, t );
+	if (pause_playback == 0){
+		for (int i=0;i<speedScale;i++){
+			ticks++;
+			t = (double) ((ticks)%n.duration)/n.duration;
+			if (t==0)
+				break;
+		}
+	}
 	// printf("%f\n", t);
+	// if (pause_playback==0)
+		Hand.drawHand( n, prev_note , t);
 	if (t==0){
-		printf("Boom\n" );
+		prev_note = notes.front();
 		// Move to next note, and put current note at end of queue
 		notes.push(notes.front());
 		notes.pop();
@@ -444,10 +458,8 @@ void key(unsigned char ch,int x,int y)
 		else if (ch=='D' && diffuse<100)
 			diffuse += 5;
 		//  Specular level
-		else if (ch=='s' && specular>0)
-			specular -= 5;
-		else if (ch=='S' && specular<100)
-			specular += 5;
+		else if (ch=='s' || ch=='S')
+			pause_playback = 1-pause_playback;
 		//  Emission level
 		else if (ch=='e' && emission>0)
 			emission -= 5;
