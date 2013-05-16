@@ -4,7 +4,7 @@ import os
 from pprint import pprint
 
 DB_PATH   = os.path.join( 'Data', 'noteData.db')
-SONG_XML = os.path.join( 'Data', 'onoffTest.xml' )
+SONG_XML = os.path.join( 'Data', 'scale.xml' )
 
 def getTotalDuration(root):
 	total = 0

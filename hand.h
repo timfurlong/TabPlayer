@@ -40,7 +40,7 @@ extern int axes;
 extern queue<note> notes;
 extern double str_y[6];
 extern const double str_fret_dist;
-extern const int speedScale;
+extern int speedScale;
 extern int firstRun;
 
 const double buffHelp = 0.000000001;

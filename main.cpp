@@ -78,7 +78,7 @@ const int dimAmbiant        = 20;
 const float dimAmbientVec[] = {0.01*dimAmbiant ,0.01*dimAmbiant ,0.01*dimAmbiant ,1.0};
 const float dimDiffuseVec[]   = {0.01*10 ,0.01*10 ,0.01*10 ,1.0};
 const char* default_song = "Data/testdata.xml";
-const int speedScale = 5;
+int speedScale = 5;
 int firstRun = 1;
 int pause_playback = 0;
 const int timerMax = 2;
@@ -207,6 +207,11 @@ void display()
 
 	//  Light switch
 	if (light){
+		Position[0] = -1;
+		Position[1] = 1;
+		Position[2] = 5;
+	}
+	else{
 		//  Light position moves
 		if (moveLightVert == 1){
 			Position[0] = ylight;
@@ -220,11 +225,6 @@ void display()
 			Position[2] = dist*Sin(zh);
 			Position[3] = 1.0;
 		}
-	}
-	else{
-		Position[0] = -1;
-		Position[1] = 1;
-		Position[2] = 5;
 	}
 
 	//  Draw light position as ball (still no lighting here)
@@ -243,12 +243,12 @@ void display()
 	glEnable(GL_LIGHT0);
 	//  Set ambient, diffuse, specular components and position of light 0
 	if (light){
-		glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
-		glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
-	}
-	else{
 		glLightfv(GL_LIGHT0,GL_AMBIENT ,dimAmbientVec);
 		glLightfv(GL_LIGHT0,GL_AMBIENT ,dimDiffuseVec);
+	}
+	else{
+		glLightfv(GL_LIGHT0,GL_AMBIENT ,Ambient);
+		glLightfv(GL_LIGHT0,GL_DIFFUSE ,Diffuse);
 	}
 	glLightfv(GL_LIGHT0,GL_SPECULAR,Specular);
 	glLightfv(GL_LIGHT0,GL_POSITION,Position);
@@ -361,6 +361,10 @@ void key(unsigned char ch,int x,int y)
 		//  Toggle axes
 		else if (ch == 'x' || ch == 'X')
 			axes = 1-axes;
+		else if (ch == 'S' && speedScale<30)
+			speedScale+=1;
+		else if (ch == 's' && speedScale>0 )
+			speedScale-=1;
 		else if (ch == 'g' || ch == 'G')
 			show_guitar = 1-show_guitar;
 		//  Toggle lighting mode
@@ -398,7 +402,7 @@ void key(unsigned char ch,int x,int y)
 		else if (ch=='D' && diffuse<100)
 			diffuse += 5;
 		//  Specular level
-		else if (ch=='s' || ch=='S')
+		else if (ch==32)
 			pause_playback = 1-pause_playback;
 		//  Emission level
 		else if (ch=='e' && emission>0)
@@ -455,13 +459,18 @@ bool Init(int argc,char* argv[]){
 	// Get database information
 	Database *db;
 	db = new Database((char *)"Data/noteData.db");
-	char q[50];
+	char q[500];
 	sprintf( q, (char *)"SELECT * FROM notes WHERE song='%s';", songname);
 	vector<vector<string> > result = db->query( q );
+	if (result.size() == 0){
+		printf("The selected data file= '%s', does not exist in the database\n", songname);
+		exit(0);
+	}
+
 	// Fill the notes vector with note structs
 	note blank_n; // Begin with blank note
 	blank_n.note_num  = -1;
-	blank_n.duration  = 100;
+	blank_n.duration  = 10;
 	blank_n.fret      = 0;
 	blank_n.string    = 0;
 	blank_n.fingering = 0;
